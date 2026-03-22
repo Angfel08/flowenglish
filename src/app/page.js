@@ -60,20 +60,7 @@ const duelWords = [
   { word: 'Although vs However', q: '___ it was raining, we went for a walk.', options: ['However', 'Although', 'Despite', 'Nevertheless'], correct: 1, exp: '"Although" conecta dos ideas en una oración. "However" conecta dos oraciones separadas.' },
 ]
 
-const levels = [
-  { code: 'A1', label: 'Principiante', min: 0, color: '#6B6966' },
-  { code: 'A2', label: 'Básico', min: 3, color: '#B85C00' },
-  { code: 'B1', label: 'Intermedio', min: 8, color: '#2D6BE3' },
-  { code: 'B2', label: 'Intermedio alto', min: 20, color: '#1D6B4E' },
-  { code: 'C1', label: 'Avanzado', min: 40, color: '#6B3FA0' },
-]
 
-function getLevel(sessions) {
-  const n = sessions || 0
-  let current = levels[0]
-  for (const l of levels) { if (n >= l.min) current = l }
-  return current
-}
 
 function fmt(text) {
   if (!text) return ''
@@ -400,8 +387,7 @@ export default function Home() {
     if (dayText.trim().length < 15) return
     setDayLoading(true); setDayWarning(''); setSessionDayText(dayText)
     try {
-      const level = getLevel(state?.sessions?.length)
-      const resp = await callAI(`Eres un coach de inglés cercano para nivel ${level.code}. RESPONDE EN ESPAÑOL natural, como un amigo bilingüe que te ayuda.\n\nVerifica si el texto está en inglés real. Si no, responde: INVALID\nSi es muy corto o sin sentido, responde: TOO_SHORT\n\nSi es válido:\n**Buena noticia:** [algo MUY específico que hizo bien — menciona sus palabras exactas]\n\n**Una cosa para pulir:** [el error más importante. Formato: "escribiste X → suena mejor así: Y". Una línea de explicación.]\n\nTono: amigo cercano, no profesor. Sin tecnicismos.\n\nAl final agrega:\nVOCAB_JSON:[{"word":"w1","def":"def simple en español","example":"ejemplo natural en inglés"},{"word":"w2","def":"def","example":"ej"},{"word":"w3","def":"def","example":"ej"}]\n\nTexto: "${dayText}"`)
+      const resp = await callAI(`Eres un coach de inglés cercano. RESPONDE EN ESPAÑOL natural, como un amigo bilingüe que te ayuda.\n\nVerifica si el texto está en inglés real. Si no, responde: INVALID\nSi es muy corto o sin sentido, responde: TOO_SHORT\n\nSi es válido:\n**Buena noticia:** [algo MUY específico que hizo bien — menciona sus palabras exactas]\n\n**Una cosa para pulir:** [el error más importante. Formato: "escribiste X → suena mejor así: Y". Una línea de explicación.]\n\nTono: amigo cercano, no profesor. Sin tecnicismos.\n\nAl final agrega:\nVOCAB_JSON:[{"word":"w1","def":"def simple en español","example":"ejemplo natural en inglés"},{"word":"w2","def":"def","example":"ej"},{"word":"w3","def":"def","example":"ej"}]\n\nTexto: "${dayText}"`)
       if (resp.trim().startsWith('INVALID')) {
         setDayWarning('Parece que esto no está en inglés. Escribe aunque sea una oración simple — el nivel no importa.')
         setDayLoading(false); return
@@ -422,8 +408,7 @@ export default function Home() {
 
   async function genReto(text) {
     try {
-      const level = getLevel(state?.sessions?.length)
-      const resp = await callAI(`Eres coach de inglés. RESPONDE EN ESPAÑOL natural. Texto nivel ${level.code}: "${text}"\n\nIdentifica el patrón más útil:\n**El patrón:** [qué es y cuándo usarlo — 1-2 oraciones simples]\n**Así se vería mejor:** [toma algo de su texto y muéstralo mejorado]\n**Tu turno:** [una situación simple para practicar ese patrón]\n\nMáximo 80 palabras. Tono: amigo que te corrige con cariño.`)
+      const resp = await callAI(`Eres coach de inglés. RESPONDE EN ESPAÑOL natural. Texto del aprendiz: "${text}"\n\nIdentifica el patrón más útil:\n**El patrón:** [qué es y cuándo usarlo — 1-2 oraciones simples]\n**Así se vería mejor:** [toma algo de su texto y muéstralo mejorado]\n**Tu turno:** [una situación simple para practicar ese patrón]\n\nMáximo 80 palabras. Tono: amigo que te corrige con cariño.`)
       setRetoPattern(resp)
     } catch (e) { }
   }
@@ -459,8 +444,7 @@ export default function Home() {
   async function submitCierre() {
     setCierreLoading(true)
     try {
-      const level = getLevel(state?.sessions?.length)
-      const resp = await callAI(`Eres coach de inglés. RESPONDE EN ESPAÑOL cercano y personal.\n\nEl aprendiz ${state?.name || ''}completó su sesión. Escribió sobre: "${sessionDayText.substring(0, 150)}". Vocabulario trabajado: ${sessionVocab.map(w => w.word).join(', ') || 'general'}. Nivel actual: ${level.code}.\n\nEscribe 2-3 oraciones MUY personales:\n1. Menciona algo específico de lo que escribió hoy\n2. Un consejo concreto para mañana\n\nNada genérico. Habla como alguien que realmente leyó su texto.`)
+      const resp = await callAI(`Eres coach de inglés. RESPONDE EN ESPAÑOL cercano y personal.\n\nEl aprendiz ${state?.name || ''}completó su sesión. Escribió sobre: "${sessionDayText.substring(0, 150)}". Vocabulario trabajado: ${sessionVocab.map(w => w.word).join(', ') || 'general'}.\n\nEscribe 2-3 oraciones MUY personales:\n1. Menciona algo específico de lo que escribió hoy\n2. Un consejo concreto para mañana\n\nNada genérico. Habla como alguien que realmente leyó su texto.`)
       setCierreText(resp); addLearned(resp.substring(0, 90) + '...')
       const today = new Date().toISOString()
       const newSessions = [...(state?.sessions || []), { date: today }]
@@ -529,7 +513,6 @@ export default function Home() {
     } catch (e) { }
   }
 
-  const level = getLevel(state?.sessions?.length)
   const reviewCards = (state?.vocab || []).slice(-9).slice(0, 3)
   const greeting = (() => { const h = new Date().getHours(); return h < 12 ? 'Buenos días' : h < 20 ? 'Buenas tardes' : 'Buenas noches' })()
   const todayStr = new Date().toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' })
@@ -631,7 +614,6 @@ export default function Home() {
             <span style={{ fontFamily: "'Fraunces',serif", fontSize: '1.1rem', letterSpacing: '-0.02em', color: 'var(--text)' }}>FlowEnglish</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <LevelBadge level={level} />
             <button onClick={() => setView('progress')} className="pressable" style={{ background: 'none', border: 'none', color: 'var(--muted)', fontSize: '0.82rem', fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 500 }}>Mi progreso →</button>
           </div>
         </header>
@@ -678,37 +660,14 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Level progress */}
-          <div style={{ background: 'var(--surface)', borderRadius: 'var(--r)', border: '1px solid var(--border)', padding: '1rem 1.2rem', boxShadow: 'var(--shadow-sm)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <LevelBadge level={level} />
-                <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text)' }}>{level.label}</span>
-              </div>
-              {(() => {
-                const nextLevel = levels[levels.indexOf(level) + 1]
-                if (!nextLevel) return <span style={{ fontSize: '0.75rem', color: 'var(--green)', fontWeight: 600 }}>Nivel máximo 🎉</span>
-                const needed = nextLevel.min - (state.sessions?.length || 0)
-                return <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{needed} sesión{needed !== 1 ? 'es' : ''} para {nextLevel.code}</span>
-              })()}
-            </div>
-            {(() => {
-              const next = levels[levels.indexOf(level) + 1]
-              if (!next) return null
-              const progress = Math.min(100, Math.round(((state.sessions?.length || 0) - level.min) / (next.min - level.min) * 100))
-              return (
-                <div style={{ background: 'var(--border)', borderRadius: 99, height: 6, overflow: 'hidden' }}>
-                  <div style={{ width: `${progress}%`, height: '100%', background: level.color, borderRadius: 99, transition: 'width 0.8s cubic-bezier(0.16,1,0.3,1)' }} />
-                </div>
-              )
-            })()}
-          </div>
+
 
           {/* Activities */}
           <div>
             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Actividades extra</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {[
+                { icon: '🃏', title: 'Mis tarjetas', desc: 'Repasa con tu Anki personal', time: '5 min', color: 'var(--green)', onClick: () => { window.location.href = '/tarjetas' } },
                 { icon: '💬', title: 'Chat libre', desc: 'Conversa en inglés sobre lo que quieras', time: '5-10 min', color: 'var(--blue)', onClick: () => setView('chat-select') },
                 { icon: '⚡', title: 'Duelo rápido', desc: '5 preguntas de gramática real', time: '2 min', color: 'var(--amber)', onClick: startDuel },
                 { icon: '🎭', title: 'Situación real', desc: 'Roleplay de trabajo, viaje o vida real', time: '5-8 min', color: 'var(--purple)', onClick: () => setView('sit-select') },
@@ -831,21 +790,40 @@ export default function Home() {
                   <Dots color="var(--amber)" /><span style={{ fontSize: '0.9rem' }}>Preparando tu reto personalizado...</span>
                 </div>
                 : <>
-                  <div style={{ background: 'var(--surface)', border: '1px solid #F0D9B5', borderRadius: 'var(--r)', padding: '1.2rem', marginBottom: 20, boxShadow: 'var(--shadow-sm)' }}>
-                    <div dangerouslySetInnerHTML={{ __html: fmt(retoPattern) }} style={{ fontSize: '0.9rem', lineHeight: 1.8, color: 'var(--text)' }} />
-                  </div>
-                  {!retoResp
-                    ? <>
-                      <p style={{ fontSize: '0.88rem', fontWeight: 500, color: 'var(--text)', marginBottom: 8 }}>Tu turno — practica en inglés:</p>
+                  {!retoResp ? (
+                    <>
+                      {(() => {
+                        const lines = retoPattern.split('\n').filter(l => l.trim())
+                        const pattern = lines.find(l => l.includes('patrón') || l.includes('Patrón'))?.replace(/\*\*/g, '') || ''
+                        const challenge = lines.find(l => l.includes('turno') || l.includes('inténtalo'))?.replace(/\*\*/g, '') || ''
+                        return (
+                          <>
+                            {pattern && (
+                              <div style={{ background: 'var(--surface)', border: '1px solid #F0D9B5', borderRadius: 'var(--r)', padding: '1rem 1.2rem', marginBottom: 16, boxShadow: 'var(--shadow-sm)' }}>
+                                <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--amber)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>El patrón</div>
+                                <div style={{ fontSize: '0.9rem', lineHeight: 1.7, color: 'var(--text)' }} dangerouslySetInnerHTML={{ __html: fmt(pattern) }} />
+                              </div>
+                            )}
+                            {challenge && (
+                              <div style={{ background: 'var(--amber-light)', borderRadius: 'var(--r)', padding: '1rem 1.2rem', marginBottom: 16, border: '1px solid #F0D9B5' }}>
+                                <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--amber)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Tu reto</div>
+                                <div style={{ fontSize: '0.9rem', lineHeight: 1.7, color: 'var(--text)' }} dangerouslySetInnerHTML={{ __html: fmt(challenge) }} />
+                              </div>
+                            )}
+                          </>
+                        )
+                      })()}
+                      <p style={{ fontSize: '0.88rem', fontWeight: 500, color: 'var(--text)', marginBottom: 8 }}>Practica en inglés:</p>
                       <TA value={retoInput} onChange={e => setRetoInput(e.target.value)} placeholder="Write in English..." rows={3} />
                       {retoWarning && <WarningBox message={retoWarning} />}
                       <Btn onClick={submitReto} disabled={!retoInput.trim()} loading={retoLoading} fullWidth>Verificar →</Btn>
                     </>
-                    : <>
+                  ) : (
+                    <>
                       <FeedbackBox label="Lo que tu coach vio" color="var(--amber)" bgColor="var(--amber-light)" content={retoResp} />
                       <div style={{ marginTop: 16 }}><Btn onClick={() => setSessionStep('review')} fullWidth>Continuar a revisión →</Btn></div>
                     </>
-                  }
+                  )}
                 </>
               }
             </PageContent>
@@ -929,7 +907,7 @@ export default function Home() {
               <div style={{ textAlign: 'center' }}>
                 <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(1.6rem,5vw,2rem)', fontWeight: 400, letterSpacing: '-0.03em', marginBottom: 8 }}>Sesión completada{firstName ? `, ${firstName}` : ''}.</h2>
                 <p style={{ fontSize: '0.9rem', color: 'var(--muted)', lineHeight: 1.6 }}>
-                  Racha: <strong style={{ color: 'var(--green)', fontWeight: 600 }}>{state.streak || 1} {(state.streak || 1) === 1 ? 'día' : 'días'}</strong> · Nivel: <strong style={{ color: level.color, fontWeight: 600 }}>{level.code} — {level.label}</strong>
+                  Racha: <strong style={{ color: 'var(--green)', fontWeight: 600 }}>{state.streak || 1} {(state.streak || 1) === 1 ? 'día' : 'días'}</strong>
                 </p>
               </div>
               <div style={{ width: '100%', background: 'var(--surface)', borderRadius: 'var(--r)', border: '1px solid var(--border)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
