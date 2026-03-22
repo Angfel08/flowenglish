@@ -106,12 +106,12 @@ const CSS = `
   .card-tap:active { transform:scale(0.99); }
 `
 
-  ({ color = '#2D5BE3' }) {
-    return (
-      <span style={{ display: 'inline-flex', gap: 4, alignItems: 'center' }}>
-        {[0, 1, 2].map(i => <span key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: color, display: 'inline-block', animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />)}
-      </span>
-    )
+function Dots({ color = '#2D5BE3' }) {
+  return (
+    <span style={{ display: 'inline-flex', gap: 4, alignItems: 'center' }}>
+      {[0, 1, 2].map(i => <span key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: color, display: 'inline-block', animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />)}
+    </span>
+  )
 }
 
 function TA({ value, onChange, placeholder, hint, rows = 5, disabled }) {
@@ -530,7 +530,7 @@ export default function Home() {
           <div style={{ maxWidth: 560, width: '100%', margin: '0 auto', padding: '1.5rem 1.25rem', flex: 1, display: 'flex', flexDirection: 'column', gap: 14, overflowY: 'auto' }}>
 
             {/* Hero */}
-            <div style={{ background: 'linear-gradient(135deg,#2D5BE3 0%,#1A3FA0 100%)', borderRadius: 20, padding: '1.6rem 1.7rem', color: '#fff', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ background: '#2145C8', borderRadius: 20, padding: '1.6rem 1.7rem', color: '#fff', position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', top: -30, right: -30, width: 140, height: 140, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
               <div style={{ position: 'absolute', bottom: -20, right: 20, width: 90, height: 90, borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
               <div style={{ position: 'relative' }}>
