@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 
-const STORAGE_KEY = 'flowenglish_v3'
+const STORAGE_KEY = 'flowenglish_v4'
 
 const anclaPrompts = [
   '¿Cuál fue el momento más complicado de tu día hoy?',
@@ -14,8 +14,8 @@ const anclaPrompts = [
 ]
 
 const empathy = {
-  primera: 'Bienvenido. Vas a empezar diferente. Sin lecciones genéricas — aprendes desde lo que vives tú cada día.',
-  par: 'Tiene sentido que no te haya funcionado. Las apps populares están diseñadas para engancharte, no para que aprendas de verdad.',
+  primera: 'Bienvenido. Vas a empezar diferente — aprendes desde lo que vives tú cada día, no desde lecciones genéricas.',
+  par: 'Tiene sentido. Las apps populares están diseñadas para engancharte, no para que aprendas de verdad.',
   muchas: 'Eso no es falta de disciplina. Es que las apps no estaban diseñadas para alguien como tú. Esta sí.',
 }
 
@@ -39,98 +39,110 @@ async function callAI(prompt) {
   return data.text
 }
 
-function Dots() {
+const CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height: 100%; }
+  body { background:#F4F3EF; font-family:'Plus Jakarta Sans',sans-serif; font-weight:300; color:#1A1A1A; }
+  @keyframes pulse { 0%,80%,100%{opacity:.2;transform:scale(.7)} 40%{opacity:1;transform:scale(1)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .fade-up { animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+  .fade-in { animation: fadeIn 0.35s ease both; }
+  textarea:focus { outline:none; border-color:#2D5BE3 !important; box-shadow: 0 0 0 3px rgba(45,91,227,0.1); }
+  input:focus { outline:none; }
+  ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-thumb{background:#D3D1C7;border-radius:2px}
+`
+
+function Dots({ color = '#2D5BE3' }) {
   return (
     <span style={{ display: 'inline-flex', gap: 4, alignItems: 'center' }}>
       {[0, 1, 2].map(i => (
-        <span key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: 'currentColor', display: 'inline-block', animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite`, opacity: 0.5 }} />
+        <span key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: color, display: 'inline-block', animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />
       ))}
     </span>
-  )
-}
-
-function ProgressBar({ value, total }) {
-  const pct = Math.round((value / total) * 100)
-  return (
-    <div style={{ background: '#E8E6E0', borderRadius: 99, height: 5, overflow: 'hidden' }}>
-      <div style={{ width: `${pct}%`, height: '100%', background: '#2D5BE3', borderRadius: 99, transition: 'width 0.6s ease' }} />
-    </div>
-  )
-}
-
-function ModuleCard({ icon, title, mins, borderColor, bgColor, status, open, onToggle, children, locked }) {
-  const badges = {
-    done: { bg: '#E6F7F2', color: '#0A7A57', label: 'Completado' },
-    active: { bg: '#EBF0FD', color: '#2D5BE3', label: 'En curso' },
-    locked: { bg: '#F0EFE9', color: '#B0AEA8', label: 'Bloqueado' },
-    pending: { bg: '#F0EFE9', color: '#6B6966', label: 'Pendiente' },
-  }
-  const b = badges[status] || badges.pending
-  return (
-    <div style={{ background: '#FFFFFF', borderRadius: 16, border: `1.5px solid ${open ? borderColor : '#E8E6E0'}`, boxShadow: open ? `0 0 0 3px ${bgColor}` : '0 1px 3px rgba(0,0,0,0.06)', transition: 'all 0.25s ease', overflow: 'hidden', opacity: locked ? 0.5 : 1 }}>
-      <div onClick={locked ? undefined : onToggle} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem', cursor: locked ? 'default' : 'pointer', userSelect: 'none' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 12, background: bgColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, flexShrink: 0 }}>{icon}</div>
-          <div>
-            <div style={{ fontSize: '0.95rem', fontWeight: 500, color: '#1A1A1A' }}>{title}</div>
-            <div style={{ fontSize: '0.75rem', color: '#6B6966', marginTop: 2 }}>{mins}</div>
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: '0.72rem', fontWeight: 600, padding: '3px 10px', borderRadius: 99, background: b.bg, color: b.color }}>{b.label}</span>
-          {!locked && <span style={{ color: '#B0AEA8', fontSize: 11, transform: open ? 'rotate(180deg)' : 'none', display: 'inline-block', transition: 'transform 0.2s' }}>▾</span>}
-        </div>
-      </div>
-      {open && (
-        <div style={{ padding: '0 1.25rem 1.25rem', borderTop: '1px solid #F0EFE9' }}>
-          {children}
-        </div>
-      )}
-    </div>
-  )
-}
-
-function AIBox({ label, color, content }) {
-  return (
-    <div style={{ background: '#F7F6F2', border: '1px solid #E8E6E0', borderRadius: 10, padding: '1rem', marginTop: 10 }}>
-      <div style={{ fontSize: '0.7rem', fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, display: 'inline-block' }} />
-        {label}
-      </div>
-      <div style={{ fontSize: '0.88rem', lineHeight: 1.75, color: '#1A1A1A' }} dangerouslySetInnerHTML={{ __html: fmt(content) }} />
-    </div>
   )
 }
 
 function TA({ value, onChange, placeholder, rows = 4, disabled }) {
   return (
     <textarea value={value} onChange={onChange} placeholder={placeholder} rows={rows} disabled={disabled}
-      style={{ width: '100%', background: disabled ? '#F7F6F2' : '#FAFAF8', border: '1.5px solid #E8E6E0', borderRadius: 10, padding: '0.85rem 1rem', fontSize: '0.9rem', color: '#1A1A1A', fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 300, resize: 'none', lineHeight: 1.65, outline: 'none', marginBottom: 10, transition: 'border-color 0.2s', opacity: disabled ? 0.6 : 1 }}
-      onFocus={e => { if (!disabled) e.target.style.borderColor = '#2D5BE3' }}
-      onBlur={e => e.target.style.borderColor = '#E8E6E0'}
+      style={{ width: '100%', background: disabled ? '#F0EFE9' : '#FFFFFF', border: '1.5px solid #E0DED8', borderRadius: 12, padding: '0.9rem 1rem', fontSize: '0.95rem', color: '#1A1A1A', fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 300, resize: 'none', lineHeight: 1.65, marginBottom: 12, transition: 'border-color 0.2s, box-shadow 0.2s', opacity: disabled ? 0.7 : 1 }}
     />
   )
 }
 
-function Btn({ onClick, disabled, children, full }) {
+function PrimaryBtn({ onClick, disabled, children, fullWidth }) {
   return (
     <button onClick={onClick} disabled={disabled}
-      style={{ background: disabled ? '#B0C4F5' : '#2D5BE3', color: '#fff', border: 'none', borderRadius: 10, padding: '0.65rem 1.25rem', fontSize: '0.88rem', fontWeight: 500, cursor: disabled ? 'not-allowed' : 'pointer', fontFamily: "'Plus Jakarta Sans', sans-serif", width: full ? '100%' : 'auto', display: 'inline-flex', alignItems: 'center', gap: 6, transition: 'background 0.15s' }}>
+      style={{ background: disabled ? '#B0C4F5' : '#2D5BE3', color: '#fff', border: 'none', borderRadius: 12, padding: '0.85rem 1.5rem', fontSize: '0.95rem', fontWeight: 500, cursor: disabled ? 'not-allowed' : 'pointer', fontFamily: "'Plus Jakarta Sans',sans-serif", width: fullWidth ? '100%' : 'auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.15s, transform 0.1s' }}
+      onMouseDown={e => { if (!disabled) e.currentTarget.style.transform = 'scale(0.98)' }}
+      onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+    >
       {children}
     </button>
   )
 }
 
+function FeedbackBox({ label, color, content }) {
+  return (
+    <div className="fade-in" style={{ background: '#F4F3EF', border: `1.5px solid ${color}20`, borderLeft: `3px solid ${color}`, borderRadius: 12, padding: '1.1rem 1.1rem 1.1rem 1.2rem', marginTop: 16 }}>
+      <div style={{ fontSize: '0.7rem', fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, display: 'inline-block' }} />
+        {label}
+      </div>
+      <div style={{ fontSize: '0.9rem', lineHeight: 1.75, color: '#2A2A2A' }} dangerouslySetInnerHTML={{ __html: fmt(content) }} />
+    </div>
+  )
+}
+
+// ── LAYOUT SHELL ──
+function AppShell({ step, totalSteps, onBack, children }) {
+  const pct = Math.round((step / totalSteps) * 100)
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F4F3EF' }}>
+      {/* Top bar */}
+      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E8E6E0', padding: '0 1.5rem', display: 'flex', alignItems: 'center', gap: 16, height: 56, flexShrink: 0 }}>
+        {onBack && (
+          <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6966', fontSize: 20, lineHeight: 1, padding: '4px 6px', borderRadius: 8, transition: 'background 0.15s' }}
+            onMouseEnter={e => e.currentTarget.style.background = '#F4F3EF'}
+            onMouseLeave={e => e.currentTarget.style.background = 'none'}
+          >←</button>
+        )}
+        <div style={{ flex: 1, background: '#F0EFE9', borderRadius: 99, height: 6, overflow: 'hidden' }}>
+          <div style={{ width: `${pct}%`, height: '100%', background: '#2D5BE3', borderRadius: 99, transition: 'width 0.5s cubic-bezier(0.16,1,0.3,1)' }} />
+        </div>
+        <span style={{ fontSize: '0.8rem', color: '#6B6966', minWidth: 40, textAlign: 'right', fontWeight: 500 }}>{step}/{totalSteps}</span>
+      </div>
+      {/* Content */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function PageWrap({ children }) {
+  return (
+    <div className="fade-up" style={{ maxWidth: 560, width: '100%', margin: '0 auto', padding: '2rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+      {children}
+    </div>
+  )
+}
+
 export default function Home() {
   const [state, setState] = useState(null)
-  const [screen, setScreen] = useState('loading')
+  const [view, setView] = useState('loading') // loading | onboarding | home | session | progress
+
+  // Onboarding
   const [obStep, setObStep] = useState(1)
   const [obChoice, setObChoice] = useState('')
   const [obText, setObText] = useState('')
   const [obLearning, setObLearning] = useState('')
   const [obLoading, setObLoading] = useState(false)
-  const [tab, setTab] = useState('session')
-  const [openMod, setOpenMod] = useState('ancla')
+
+  // Session wizard: ancla|vocab|reto|review|cierre|done
+  const [sessionStep, setSessionStep] = useState('ancla')
   const [anclaText, setAnclaText] = useState('')
   const [anclaResp, setAnclaResp] = useState('')
   const [anclaLoading, setAnclaLoading] = useState(false)
@@ -142,10 +154,10 @@ export default function Home() {
   const [retoInput, setRetoInput] = useState('')
   const [retoResp, setRetoResp] = useState('')
   const [retoLoading, setRetoLoading] = useState(false)
-  const [flipped, setFlipped] = useState({})
+  const [reviewIdx, setReviewIdx] = useState(0)
+  const [reviewFlipped, setReviewFlipped] = useState(false)
   const [cierreText, setCierreText] = useState('')
   const [cierreLoading, setCierreLoading] = useState(false)
-  const [done, setDone] = useState({})
   const [sessionAncla, setSessionAncla] = useState('')
   const [sessionVocab, setSessionVocab] = useState([])
 
@@ -154,7 +166,7 @@ export default function Home() {
     const init = { onboarded: false, sessions: [], vocab: [], learned: [], streak: 0, level: 'B1' }
     const s = saved ? { ...init, ...JSON.parse(saved) } : init
     setState(s)
-    setScreen(s.onboarded ? 'app' : 'onboarding')
+    setView(s.onboarded ? 'home' : 'onboarding')
   }, [])
 
   function save(updates) {
@@ -164,54 +176,60 @@ export default function Home() {
     return next
   }
 
-  function markDone(mod) { setDone(p => ({ ...p, [mod]: true })) }
-
   function addLearned(text) {
     const today = new Date().toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })
     const ex = state?.learned || []
     if (ex.find(l => l.text === text)) return
-    save({ learned: [{ text, date: today }, ...ex].slice(0, 30) })
+    save({ learned: [{ text, date: today }, ...ex].slice(0, 40) })
   }
 
-  const doneCount = Object.keys(done).length
+  function startSession() {
+    setSessionStep('ancla')
+    setAnclaText(''); setAnclaResp('')
+    setVocabWords([]); setVocabPractice(''); setVocabResp('')
+    setRetoPattern(''); setRetoInput(''); setRetoResp('')
+    setReviewIdx(0); setReviewFlipped(false)
+    setCierreText('')
+    setSessionAncla(''); setSessionVocab([])
+    setView('session')
+  }
 
-  async function submitOb() {
+  // ── ONBOARDING HANDLERS ──
+  async function submitObText() {
     if (obText.trim().length < 10) return
     setObLoading(true)
     try {
-      const resp = await callAI(`Eres un coach de inglés para hispanohablantes. RESPONDE SIEMPRE EN ESPAÑOL excepto ejemplos en inglés. El usuario escribió su primer texto en inglés: "${obText}". Da UNA observación positiva específica y UNA sugerencia concreta usando sus propias palabras. Máximo 80 palabras. Sé cálido y directo.`)
+      const resp = await callAI(`Eres un coach de inglés para hispanohablantes. RESPONDE SIEMPRE EN ESPAÑOL excepto ejemplos. El usuario escribió su primer texto: "${obText}". Da UNA observación positiva específica y UNA sugerencia concreta usando sus propias palabras. Máximo 80 palabras. Sé cálido.`)
       setObLearning(resp)
       setObStep(4)
     } catch (e) { alert('Error: ' + e.message) }
     setObLoading(false)
   }
 
+  // ── SESSION HANDLERS ──
   async function submitAncla() {
     if (anclaText.trim().length < 15) return
     setAnclaLoading(true)
     setSessionAncla(anclaText)
     try {
-      const resp = await callAI(`Eres un coach de inglés para un hispanohablante nivel ${state?.level || 'B1'}. RESPONDE EN ESPAÑOL excepto ejemplos. El usuario escribió: "${anclaText}"\n\nResponde con esta estructura:\n**Lo que hiciste bien:** [1-2 observaciones positivas específicas]\n**Una mejora para hoy:** [error más importante, muestra su versión → versión natural]\n\nAl final agrega exactamente:\nVOCAB_JSON:[{"word":"w1","def":"def en español","example":"ejemplo en inglés"},{"word":"w2","def":"def","example":"ejemplo"},{"word":"w3","def":"def","example":"ejemplo"}]`)
+      const resp = await callAI(`Eres un coach de inglés para nivel ${state?.level || 'B1'}. RESPONDE EN ESPAÑOL excepto ejemplos en inglés.\n\nEl usuario escribió: "${anclaText}"\n\nResponde con:\n**Lo que hiciste bien:** [1-2 observaciones positivas específicas]\n**Una mejora para hoy:** [error más importante → versión natural, breve explicación]\n\nAl final, agrega exactamente:\nVOCAB_JSON:[{"word":"w1","def":"definición en español","example":"ejemplo en inglés"},{"word":"w2","def":"def","example":"ej"},{"word":"w3","def":"def","example":"ej"}]`)
       const match = resp.match(/VOCAB_JSON:(\[.*?\])/s)
-      let words = []
-      let display = resp
+      let words = []; let display = resp
       if (match) { try { words = JSON.parse(match[1]); display = resp.replace(/VOCAB_JSON:.*$/s, '').trim() } catch (e) { } }
       setAnclaResp(display)
       setVocabWords(words)
       setSessionVocab(words)
-      markDone('ancla')
       save({ vocab: [...(state?.vocab || []), ...words] })
-      await genReto(anclaText)
-      setTimeout(() => setOpenMod('vocab'), 500)
+      // Preload reto in background
+      genReto(anclaText)
     } catch (e) { alert('Error: ' + e.message) }
     setAnclaLoading(false)
   }
 
   async function genReto(text) {
     try {
-      const resp = await callAI(`Eres un coach de inglés. RESPONDE EN ESPAÑOL excepto ejemplos. Texto del aprendiz nivel ${state?.level || 'B1'}: "${text}"\n\nIdentifica el patrón más importante a practicar:\n**Patrón:** [explicación breve]\n**Ejemplo correcto:** [versión mejorada de algo que escribió]\n**Tu reto:** [oración para completar o reescribir]\nMáximo 70 palabras.`)
+      const resp = await callAI(`Eres coach de inglés. RESPONDE EN ESPAÑOL excepto ejemplos. Texto nivel ${state?.level || 'B1'}: "${text}"\n\nIdentifica el patrón más importante:\n**Patrón:** [explicación breve]\n**Ejemplo correcto:** [versión mejorada de lo que escribió]\n**Tu reto:** [oración para completar o reescribir]\nMáximo 70 palabras.`)
       setRetoPattern(resp)
-      markDone('reto')
     } catch (e) { }
   }
 
@@ -219,11 +237,9 @@ export default function Home() {
     if (!vocabPractice.trim()) return
     setVocabLoading(true)
     try {
-      const resp = await callAI(`Eres coach de inglés. RESPONDE EN ESPAÑOL. El aprendiz practicó vocabulario (${sessionVocab.map(w => w.word).join(', ')}) escribiendo: "${vocabPractice}". Feedback breve (2-3 oraciones): ¿usó bien la palabra? ¿mejora natural? Sé específico y motivador.`)
+      const resp = await callAI(`Eres coach de inglés. RESPONDE EN ESPAÑOL. El aprendiz practicó (${sessionVocab.map(w => w.word).join(', ')}) escribiendo: "${vocabPractice}". Feedback en 2-3 oraciones: ¿usó bien la palabra? ¿mejora natural? Sé específico y motivador.`)
       setVocabResp(resp)
-      markDone('vocab')
       addLearned(`Vocabulario: ${sessionVocab.map(w => w.word).join(', ')}`)
-      setTimeout(() => setOpenMod('reto'), 500)
     } catch (e) { }
     setVocabLoading(false)
   }
@@ -232,256 +248,413 @@ export default function Home() {
     if (!retoInput.trim()) return
     setRetoLoading(true)
     try {
-      const resp = await callAI(`Eres coach de inglés. RESPONDE EN ESPAÑOL excepto ejemplos. Patrón practicado: "${retoPattern}". El aprendiz escribió: "${retoInput}". Corrección y ánimo en 2-3 oraciones. Muestra versión mejorada si es necesario.`)
+      const resp = await callAI(`Eres coach de inglés. RESPONDE EN ESPAÑOL excepto ejemplos. Patrón: "${retoPattern}". El aprendiz escribió: "${retoInput}". Corrección y ánimo en 2-3 oraciones. Muestra versión mejorada si necesario.`)
       setRetoResp(resp)
-      markDone('retoComplete')
       addLearned('Gramática: patrón del día practicado')
-      setTimeout(() => setOpenMod('review'), 500)
     } catch (e) { }
     setRetoLoading(false)
   }
 
-  async function genCierre() {
+  async function submitCierre() {
     setCierreLoading(true)
     try {
-      const resp = await callAI(`Eres coach de inglés. RESPONDE EN ESPAÑOL. Resumen de cierre de sesión. Aprendiz escribió sobre: "${sessionAncla.substring(0, 150)}". Vocabulario: ${sessionVocab.map(w => w.word).join(', ') || 'general'}. Nivel: ${state?.level || 'B1'}. Escribe 2-3 oraciones concretas: qué practicó hoy + foco específico para mañana. Nada genérico.`)
+      const resp = await callAI(`Eres coach de inglés. RESPONDE EN ESPAÑOL. Cierre de sesión. El aprendiz escribió sobre: "${sessionAncla.substring(0, 150)}". Vocabulario: ${sessionVocab.map(w => w.word).join(', ') || 'general'}. Nivel: ${state?.level || 'B1'}. Escribe 2-3 oraciones: qué practicó hoy + foco específico para mañana. Sé concreto.`)
       setCierreText(resp)
-      markDone('cierre')
       addLearned(resp.substring(0, 90) + '...')
       save({ sessions: [...(state?.sessions || []), { date: new Date().toISOString() }], streak: (state?.streak || 0) + 1 })
     } catch (e) { }
     setCierreLoading(false)
   }
 
-  const reviewCards = (state?.vocab || []).slice(-6).slice(0, 3)
+  const reviewCards = (state?.vocab || []).slice(-9).slice(0, 3)
   const greeting = (() => { const h = new Date().getHours(); return h < 12 ? 'Buenos días' : h < 20 ? 'Buenas tardes' : 'Buenas noches' })()
-  const dateStr = new Date().toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' })
+  const anclaPrompt = anclaPrompts[new Date().getDay() % anclaPrompts.length]
+  const sessionSteps = ['ancla', 'vocab', 'reto', 'review', 'cierre']
+  const sessionStepNum = sessionSteps.indexOf(sessionStep) + 1
 
-  if (screen === 'loading' || !state) return null
+  if (view === 'loading' || !state) return null
 
-  const CSS = `
-    @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    body { background:#F7F6F2; font-family:'Plus Jakarta Sans',sans-serif; font-weight:300; }
-    @keyframes pulse { 0%,80%,100%{opacity:.2;transform:scale(.7)} 40%{opacity:1;transform:scale(1)} }
-    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
-    .fade-up { animation: fadeUp 0.45s ease both; }
-    ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-thumb{background:#D3D1C7;border-radius:2px}
-  `
-
-  // ── ONBOARDING ──
-  if (screen === 'onboarding') return (
+  // ══════════════════════════════════════════════════════
+  // ONBOARDING
+  // ══════════════════════════════════════════════════════
+  if (view === 'onboarding') return (
     <>
       <style>{CSS}</style>
-      <div style={{ minHeight: '100vh', background: '#F7F6F2', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-        <div style={{ width: '100%', maxWidth: 460 }} className="fade-up">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '3rem' }}>
-            <div style={{ width: 36, height: 36, background: '#2D5BE3', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 15, fontWeight: 700 }}>F</div>
-            <span style={{ fontFamily: "'Fraunces', serif", fontSize: '1.4rem', color: '#1A1A1A', letterSpacing: '-0.02em' }}>FlowEnglish</span>
+      <div style={{ minHeight: '100vh', background: '#F4F3EF', display: 'flex', flexDirection: 'column' }}>
+        {/* Progress bar */}
+        <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E8E6E0', height: 56, display: 'flex', alignItems: 'center', padding: '0 1.5rem', gap: 16, flexShrink: 0 }}>
+          <div style={{ flex: 1, background: '#F0EFE9', borderRadius: 99, height: 6, overflow: 'hidden' }}>
+            <div style={{ width: `${(obStep / 4) * 100}%`, height: '100%', background: '#2D5BE3', borderRadius: 99, transition: 'width 0.5s cubic-bezier(0.16,1,0.3,1)' }} />
+          </div>
+          <span style={{ fontSize: '0.8rem', color: '#6B6966', fontWeight: 500 }}>{obStep}/4</span>
+        </div>
+
+        <div className="fade-up" style={{ maxWidth: 520, width: '100%', margin: '0 auto', padding: '2.5rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {/* Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '2.5rem' }}>
+            <div style={{ width: 34, height: 34, background: '#2D5BE3', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 14, fontWeight: 700 }}>F</div>
+            <span style={{ fontFamily: "'Fraunces',serif", fontSize: '1.3rem', color: '#1A1A1A', letterSpacing: '-0.02em' }}>FlowEnglish</span>
           </div>
 
-          {obStep === 1 && <div className="fade-up">
-            <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 'clamp(1.6rem,4vw,2rem)', lineHeight: 1.2, marginBottom: '0.6rem', letterSpacing: '-0.02em', fontWeight: 400 }}>¿Cuántas veces has intentado aprender inglés?</h2>
-            <p style={{ fontSize: '0.9rem', color: '#6B6966', marginBottom: '1.8rem', lineHeight: 1.6 }}>Sin juicio. Solo queremos entenderte.</p>
+          {/* Step 1 */}
+          {obStep === 1 && <div key="ob1" className="fade-up">
+            <h1 style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(1.7rem,5vw,2.2rem)', lineHeight: 1.2, marginBottom: '0.7rem', letterSpacing: '-0.02em', fontWeight: 400 }}>¿Cuántas veces has intentado aprender inglés?</h1>
+            <p style={{ fontSize: '0.92rem', color: '#6B6966', marginBottom: '2rem', lineHeight: 1.6 }}>Sin juicio. Solo queremos entenderte.</p>
             {[['primera', 'Es mi primera vez'], ['par', 'Un par de veces'], ['muchas', 'Varias — nunca me ha funcionado']].map(([val, label]) => (
               <button key={val} onClick={() => { setObChoice(val); setTimeout(() => setObStep(2), 250) }}
-                style={{ display: 'block', width: '100%', background: obChoice === val ? '#EBF0FD' : '#FFFFFF', border: `1.5px solid ${obChoice === val ? '#2D5BE3' : '#E8E6E0'}`, borderRadius: 14, padding: '1rem 1.25rem', cursor: 'pointer', fontSize: '0.95rem', color: obChoice === val ? '#2D5BE3' : '#1A1A1A', textAlign: 'left', marginBottom: 10, fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 400, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', transition: 'all 0.2s' }}>
-                {label}
-              </button>
+                style={{ display: 'block', width: '100%', background: obChoice === val ? '#EBF0FD' : '#FFFFFF', border: `1.5px solid ${obChoice === val ? '#2D5BE3' : '#E0DED8'}`, borderRadius: 14, padding: '1.1rem 1.25rem', cursor: 'pointer', fontSize: '0.95rem', color: obChoice === val ? '#2D5BE3' : '#1A1A1A', textAlign: 'left', marginBottom: 10, fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 400, transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
+                onMouseEnter={e => { if (obChoice !== val) { e.currentTarget.style.borderColor = '#B0AEA8' } }}
+                onMouseLeave={e => { if (obChoice !== val) { e.currentTarget.style.borderColor = '#E0DED8' } }}
+              >{label}</button>
             ))}
           </div>}
 
-          {obStep === 2 && <div className="fade-up">
-            <div style={{ background: '#FFFFFF', border: '1px solid #E8E6E0', borderRadius: 16, padding: '1.5rem', marginBottom: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', lineHeight: 1.7, fontSize: '0.95rem', color: '#6B6966' }}>
-              <span style={{ color: '#1A1A1A', fontWeight: 500 }}>{empathy[obChoice].split('.')[0]}.</span>{' '}
-              {empathy[obChoice].split('.').slice(1).join('.')}
+          {/* Step 2 */}
+          {obStep === 2 && <div key="ob2" className="fade-up">
+            <div style={{ background: '#FFFFFF', border: '1px solid #E8E6E0', borderRadius: 16, padding: '1.5rem', marginBottom: '2rem', lineHeight: 1.75, fontSize: '0.95rem', color: '#1A1A1A', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+              {empathy[obChoice]}
             </div>
-            <button onClick={() => setObStep(3)} style={{ width: '100%', background: '#2D5BE3', color: '#fff', border: 'none', borderRadius: 14, padding: '1rem', fontSize: '0.95rem', fontWeight: 500, cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
-              Muéstrame cómo funciona →
-            </button>
+            <PrimaryBtn onClick={() => setObStep(3)} fullWidth>Muéstrame cómo funciona →</PrimaryBtn>
           </div>}
 
-          {obStep === 3 && <div className="fade-up">
-            <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(1.4rem,3.5vw,1.9rem)', lineHeight: 1.25, marginBottom: '0.6rem', letterSpacing: '-0.02em', fontWeight: 400 }}>Tu primera sesión — ahora mismo</h2>
-            <p style={{ fontSize: '0.9rem', color: '#6B6966', marginBottom: '1.5rem', lineHeight: 1.6 }}>Cuéntame algo que pasó hoy, en inglés. Como puedas. No hay errores aquí.</p>
-            <TA value={obText} onChange={e => setObText(e.target.value)} placeholder="Today I..." rows={4} />
-            <button onClick={submitOb} disabled={obLoading || obText.length < 10}
-              style={{ width: '100%', background: obLoading || obText.length < 10 ? '#B0C4F5' : '#2D5BE3', color: '#fff', border: 'none', borderRadius: 14, padding: '1rem', fontSize: '0.95rem', fontWeight: 500, cursor: obLoading || obText.length < 10 ? 'not-allowed' : 'pointer', fontFamily: "'Plus Jakarta Sans',sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              {obLoading ? <><Dots /> Analizando...</> : 'Analizar mi inglés →'}
-            </button>
+          {/* Step 3 */}
+          {obStep === 3 && <div key="ob3" className="fade-up">
+            <div style={{ display: 'inline-block', background: '#EBF0FD', color: '#2D5BE3', fontSize: '0.75rem', fontWeight: 600, padding: '4px 12px', borderRadius: 99, marginBottom: '1rem', letterSpacing: '0.04em' }}>PRIMERA SESIÓN</div>
+            <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(1.5rem,4vw,1.9rem)', lineHeight: 1.25, marginBottom: '0.7rem', letterSpacing: '-0.02em', fontWeight: 400 }}>Cuéntame algo que pasó hoy</h2>
+            <p style={{ fontSize: '0.9rem', color: '#6B6966', marginBottom: '1.5rem', lineHeight: 1.6 }}>En inglés, como puedas. No hay errores aquí — solo tu día.</p>
+            <TA value={obText} onChange={e => setObText(e.target.value)} placeholder="Today I..." rows={5} />
+            <PrimaryBtn onClick={submitObText} disabled={obLoading || obText.length < 10} fullWidth>
+              {obLoading ? <><Dots color="#fff" /> Analizando...</> : 'Analizar mi inglés →'}
+            </PrimaryBtn>
           </div>}
 
-          {obStep === 4 && <div className="fade-up">
-            <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(1.4rem,3.5vw,1.9rem)', lineHeight: 1.25, marginBottom: '0.6rem', letterSpacing: '-0.02em', fontWeight: 400 }}>Tu primer aprendizaje</h2>
-            <p style={{ fontSize: '0.9rem', color: '#6B6966', marginBottom: '1.2rem' }}>Basado en lo que escribiste:</p>
-            <div style={{ background: '#FFFFFF', border: '1.5px solid #2D5BE3', borderRadius: 16, padding: '1.25rem', marginBottom: '1.5rem', boxShadow: '0 0 0 3px #EBF0FD', fontSize: '0.92rem', lineHeight: 1.75, color: '#1A1A1A' }} dangerouslySetInnerHTML={{ __html: fmt(obLearning) }} />
-            <button onClick={() => { save({ onboarded: true }); setScreen('app') }} style={{ width: '100%', background: '#2D5BE3', color: '#fff', border: 'none', borderRadius: 14, padding: '1rem', fontSize: '0.95rem', fontWeight: 500, cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
-              Entrar a mi app →
-            </button>
+          {/* Step 4 */}
+          {obStep === 4 && <div key="ob4" className="fade-up">
+            <div style={{ display: 'inline-block', background: '#E6F7F2', color: '#0A7A57', fontSize: '0.75rem', fontWeight: 600, padding: '4px 12px', borderRadius: 99, marginBottom: '1rem', letterSpacing: '0.04em' }}>TU PRIMER APRENDIZAJE</div>
+            <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(1.5rem,4vw,1.9rem)', lineHeight: 1.25, marginBottom: '1.5rem', letterSpacing: '-0.02em', fontWeight: 400 }}>Basado en lo que escribiste</h2>
+            <div style={{ background: '#FFFFFF', border: '1.5px solid #2D5BE3', borderRadius: 16, padding: '1.4rem', marginBottom: '1.8rem', boxShadow: '0 0 0 4px rgba(45,91,227,0.08)', fontSize: '0.92rem', lineHeight: 1.8, color: '#1A1A1A' }} dangerouslySetInnerHTML={{ __html: fmt(obLearning) }} />
+            <PrimaryBtn onClick={() => { save({ onboarded: true }); setView('home') }} fullWidth>Entrar a mi app →</PrimaryBtn>
           </div>}
+        </div>
+      </div>
+    </>
+  )
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: '2rem' }}>
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} style={{ width: i === obStep ? 20 : 6, height: 6, borderRadius: 99, background: i === obStep ? '#2D5BE3' : '#D3D1C7', transition: 'all 0.3s' }} />
+  // ══════════════════════════════════════════════════════
+  // HOME
+  // ══════════════════════════════════════════════════════
+  if (view === 'home') return (
+    <>
+      <style>{CSS}</style>
+      <div style={{ minHeight: '100vh', background: '#F4F3EF', display: 'flex', flexDirection: 'column' }}>
+        {/* Header */}
+        <header style={{ background: '#FFFFFF', borderBottom: '1px solid #E8E6E0', padding: '0 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56, flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 30, height: 30, background: '#2D5BE3', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 13, fontWeight: 700 }}>F</div>
+            <span style={{ fontFamily: "'Fraunces',serif", fontSize: '1.1rem', letterSpacing: '-0.02em' }}>FlowEnglish</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ background: '#EBF0FD', color: '#2D5BE3', fontSize: '0.78rem', fontWeight: 600, padding: '3px 10px', borderRadius: 99 }}>{state.level || 'B1'}</span>
+            <span style={{ background: '#E6F7F2', color: '#0A7A57', fontSize: '0.78rem', fontWeight: 500, padding: '3px 10px', borderRadius: 99, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ fontSize: 8 }}>●</span>{state.streak || 0} días
+            </span>
+          </div>
+        </header>
+
+        {/* Content */}
+        <div className="fade-up" style={{ maxWidth: 560, width: '100%', margin: '0 auto', padding: '2rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Greeting card */}
+          <div style={{ background: '#2D5BE3', borderRadius: 20, padding: '1.8rem', color: '#fff', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: -20, right: -20, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
+            <div style={{ position: 'absolute', bottom: -30, right: 30, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
+            <p style={{ fontSize: '0.85rem', opacity: 0.75, marginBottom: 4, fontWeight: 400 }}>{new Date().toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+            <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(1.5rem,4vw,1.9rem)', fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: '1.2rem' }}>{greeting}</h2>
+            <button onClick={startSession}
+              style={{ background: '#FFFFFF', color: '#2D5BE3', border: 'none', borderRadius: 12, padding: '0.75rem 1.4rem', fontSize: '0.95rem', fontWeight: 600, cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',sans-serif", display: 'inline-flex', alignItems: 'center', gap: 8, transition: 'transform 0.1s' }}
+              onMouseDown={e => e.currentTarget.style.transform = 'scale(0.97)'}
+              onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              Iniciar sesión de hoy →
+            </button>
+          </div>
+
+          {/* Stats row */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
+            {[['Sesiones', state.sessions?.length || 0, 'completadas'], ['Vocab', state.vocab?.length || 0, 'palabras'], ['Racha', state.streak || 0, 'días']].map(([label, val, sub]) => (
+              <div key={label} style={{ background: '#FFFFFF', borderRadius: 14, padding: '1rem', border: '1px solid #E8E6E0', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                <div style={{ fontFamily: "'Fraunces',serif", fontSize: '1.5rem', fontWeight: 400, color: '#2D5BE3', lineHeight: 1 }}>{val}</div>
+                <div style={{ fontSize: '0.7rem', color: '#6B6966', marginTop: 4 }}>{label}</div>
+              </div>
             ))}
+          </div>
+
+          {/* Progress tab */}
+          <div style={{ background: '#FFFFFF', borderRadius: 16, border: '1px solid #E8E6E0', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #F0EFE9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>Lo que has aprendido</span>
+              <button onClick={() => setView('progress')} style={{ background: 'none', border: 'none', color: '#2D5BE3', fontSize: '0.82rem', cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 500 }}>Ver todo →</button>
+            </div>
+            {(!state.learned || state.learned.length === 0)
+              ? <div style={{ padding: '1.5rem 1.25rem', textAlign: 'center', color: '#B0AEA8', fontSize: '0.88rem' }}>Completa tu primera sesión para ver tu progreso.</div>
+              : state.learned.slice(0, 3).map((l, i) => (
+                <div key={i} style={{ padding: '0.85rem 1.25rem', borderBottom: i < 2 && state.learned.length > i + 1 ? '1px solid #F0EFE9' : 'none', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#0A9B6E', flexShrink: 0, marginTop: 6 }} />
+                  <div>
+                    <div style={{ fontSize: '0.87rem', lineHeight: 1.5, color: '#1A1A1A' }}>{l.text}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#B0AEA8', marginTop: 2 }}>{l.date}</div>
+                  </div>
+                </div>
+              ))
+            }
           </div>
         </div>
       </div>
     </>
   )
 
-  // ── MAIN APP ──
-  return (
-    <>
-      <style>{CSS}</style>
-      <div style={{ minHeight: '100vh', background: '#F7F6F2' }}>
+  // ══════════════════════════════════════════════════════
+  // SESSION WIZARD
+  // ══════════════════════════════════════════════════════
+  if (view === 'session') {
+    const stepLabels = { ancla: 'Ancla del día', vocab: 'Vocabulario vivo', reto: 'Mini reto', review: 'Revisión rápida', cierre: 'Cierre del día', done: 'Sesión completa' }
 
-        <header style={{ background: 'rgba(247,246,242,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #E8E6E0', position: 'sticky', top: 0, zIndex: 20 }}>
-          <div style={{ maxWidth: 720, margin: '0 auto', padding: '0.9rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ width: 30, height: 30, background: '#2D5BE3', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 13, fontWeight: 700 }}>F</div>
-              <span style={{ fontFamily: "'Fraunces',serif", fontSize: '1.1rem', letterSpacing: '-0.02em', color: '#1A1A1A' }}>FlowEnglish</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ background: '#FFFFFF', border: '1px solid #E8E6E0', borderRadius: 99, padding: '4px 12px', fontSize: '0.8rem', color: '#6B6966', display: 'flex', alignItems: 'center', gap: 5, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                <span style={{ color: '#0A9B6E', fontSize: 9 }}>●</span> {state.streak || 0} días
-              </div>
-              <div style={{ background: '#EBF0FD', border: '1px solid #B0C4F5', borderRadius: 99, padding: '4px 12px', fontSize: '0.8rem', color: '#2D5BE3', fontWeight: 500 }}>{state.level || 'B1'}</div>
-            </div>
-          </div>
-        </header>
+    return (
+      <>
+        <style>{CSS}</style>
+        <AppShell step={sessionStepNum} totalSteps={5} onBack={sessionStep === 'ancla' ? () => setView('home') : undefined}>
 
-        <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E8E6E0' }}>
-          <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 1.5rem', display: 'flex' }}>
-            {[['session', 'Sesión de hoy'], ['progress', 'Mi progreso']].map(([id, label]) => (
-              <button key={id} onClick={() => setTab(id)} style={{ background: 'none', border: 'none', borderBottom: `2px solid ${tab === id ? '#2D5BE3' : 'transparent'}`, color: tab === id ? '#2D5BE3' : '#6B6966', fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: '0.88rem', fontWeight: tab === id ? 500 : 300, padding: '0.85rem 1rem', cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
+          {/* ── ANCLA ── */}
+          {sessionStep === 'ancla' && (
+            <PageWrap>
+              <div style={{ display: 'inline-block', background: '#F2EDFA', color: '#6B3FA0', fontSize: '0.72rem', fontWeight: 700, padding: '4px 12px', borderRadius: 99, marginBottom: '1.2rem', letterSpacing: '0.06em' }}>MÓDULO 1 · ANCLA DEL DÍA</div>
+              <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(1.4rem,4vw,1.85rem)', lineHeight: 1.25, marginBottom: '0.7rem', letterSpacing: '-0.02em', fontWeight: 400 }}>{anclaPrompt}</h2>
+              <p style={{ fontSize: '0.88rem', color: '#6B6966', marginBottom: '1.5rem', lineHeight: 1.6 }}>En inglés, como puedas. No hay errores — solo tu día.</p>
+              <TA value={anclaText} onChange={e => setAnclaText(e.target.value)} placeholder="Today I..." rows={5} disabled={!!anclaResp} />
+              {!anclaResp && <PrimaryBtn onClick={submitAncla} disabled={anclaLoading || anclaText.length < 15} fullWidth>
+                {anclaLoading ? <><Dots color="#fff" />Analizando...</> : 'Analizar →'}
+              </PrimaryBtn>}
+              {anclaResp && <>
+                <FeedbackBox label="Análisis de tu texto" color="#6B3FA0" content={anclaResp} />
+                <div style={{ marginTop: 16 }}>
+                  <PrimaryBtn onClick={() => setSessionStep('vocab')} fullWidth>Continuar →</PrimaryBtn>
+                </div>
+              </>}
+            </PageWrap>
+          )}
 
-        {tab === 'session' && (
-          <div style={{ maxWidth: 720, margin: '0 auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 4 }}>
-              <div>
-                <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(1.4rem,3vw,1.8rem)', letterSpacing: '-0.02em', fontWeight: 400, lineHeight: 1.2, color: '#1A1A1A' }}>{greeting}</h2>
-                <p style={{ fontSize: '0.82rem', color: '#6B6966', marginTop: 4 }}>{dateStr}</p>
-              </div>
-              <div style={{ background: '#FFFFFF', border: '1px solid #E8E6E0', borderRadius: 14, padding: '0.75rem 1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', minWidth: 100, textAlign: 'center' }}>
-                <div style={{ fontSize: '0.7rem', color: '#6B6966', marginBottom: 6 }}>Progreso de hoy</div>
-                <ProgressBar value={doneCount} total={5} />
-                <div style={{ fontSize: '0.72rem', color: '#2D5BE3', marginTop: 5, fontWeight: 500 }}>{doneCount} de 5 módulos</div>
-              </div>
-            </div>
-
-            <ModuleCard icon="◈" title="Ancla del día" mins="2 min · Empieza aquí" borderColor="#6B3FA0" bgColor="#F2EDFA" status={done.ancla ? 'done' : 'active'} open={openMod === 'ancla'} onToggle={() => setOpenMod(openMod === 'ancla' ? null : 'ancla')}>
-              <p style={{ fontSize: '0.88rem', color: '#6B6966', lineHeight: 1.6, padding: '0.8rem 0 0.5rem' }}>{anclaPrompts[new Date().getDay() % anclaPrompts.length]}</p>
-              <TA value={anclaText} onChange={e => setAnclaText(e.target.value)} placeholder="Escribe en inglés como puedas..." disabled={done.ancla} />
-              {!done.ancla && <Btn onClick={submitAncla} disabled={anclaLoading || anclaText.length < 15}>{anclaLoading ? <><Dots /> Analizando...</> : 'Analizar →'}</Btn>}
-              {anclaResp && <AIBox label="Análisis" color="#6B3FA0" content={anclaResp} />}
-            </ModuleCard>
-
-            <ModuleCard icon="◆" title="Vocabulario vivo" mins="5 min" borderColor="#0A9B6E" bgColor="#E6F7F2" status={done.vocab ? 'done' : done.ancla ? 'pending' : 'locked'} locked={!done.ancla} open={openMod === 'vocab'} onToggle={() => setOpenMod(openMod === 'vocab' ? null : 'vocab')}>
-              {vocabWords.length > 0 ? <>
-                <p style={{ fontSize: '0.82rem', color: '#6B6966', padding: '0.8rem 0 0.6rem' }}>Palabras extraídas de tu texto de hoy:</p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
+          {/* ── VOCABULARIO ── */}
+          {sessionStep === 'vocab' && (
+            <PageWrap>
+              <div style={{ display: 'inline-block', background: '#E6F7F2', color: '#0A7A57', fontSize: '0.72rem', fontWeight: 700, padding: '4px 12px', borderRadius: 99, marginBottom: '1.2rem', letterSpacing: '0.06em' }}>MÓDULO 2 · VOCABULARIO VIVO</div>
+              <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(1.4rem,4vw,1.85rem)', lineHeight: 1.25, marginBottom: '0.7rem', letterSpacing: '-0.02em', fontWeight: 400 }}>Palabras de tu texto de hoy</h2>
+              <p style={{ fontSize: '0.88rem', color: '#6B6966', marginBottom: '1.4rem', lineHeight: 1.6 }}>Aprénde estas palabras en el contexto de lo que tú mismo escribiste.</p>
+              {vocabWords.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
                   {vocabWords.map((w, i) => (
-                    <div key={i} style={{ background: '#E6F7F2', border: '1px solid rgba(10,155,110,0.2)', borderRadius: 10, padding: '0.85rem 1rem' }}>
-                      <div style={{ fontSize: '1rem', fontWeight: 600, color: '#0A7A57', marginBottom: 2 }}>{w.word}</div>
-                      <div style={{ fontSize: '0.8rem', color: '#6B6966', lineHeight: 1.5 }}>{w.def}</div>
-                      <div style={{ fontSize: '0.8rem', fontStyle: 'italic', color: '#1A1A1A', marginTop: 4, opacity: 0.7 }}>"{w.example}"</div>
+                    <div key={i} style={{ background: '#FFFFFF', border: '1px solid #D4EDE6', borderRadius: 14, padding: '1rem 1.1rem', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 10, background: '#E6F7F2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Fraunces',serif", fontSize: '1.1rem', color: '#0A7A57', flexShrink: 0 }}>{i + 1}</div>
+                      <div>
+                        <div style={{ fontSize: '1rem', fontWeight: 600, color: '#0A7A57', marginBottom: 2 }}>{w.word}</div>
+                        <div style={{ fontSize: '0.82rem', color: '#6B6966', lineHeight: 1.5 }}>{w.def}</div>
+                        <div style={{ fontSize: '0.82rem', fontStyle: 'italic', color: '#1A1A1A', marginTop: 4, opacity: 0.65 }}>"{w.example}"</div>
+                      </div>
                     </div>
                   ))}
                 </div>
-                {!done.vocab && <>
-                  <TA value={vocabPractice} onChange={e => setVocabPractice(e.target.value)} placeholder="Usa una de estas palabras en una oración propia..." rows={2} />
-                  <Btn onClick={submitVocab} disabled={vocabLoading || !vocabPractice.trim()}>{vocabLoading ? <><Dots /> Revisando...</> : 'Enviar →'}</Btn>
-                </>}
-                {vocabResp && <AIBox label="Feedback" color="#0A9B6E" content={vocabResp} />}
-              </> : <p style={{ fontSize: '0.85rem', color: '#B0AEA8', padding: '0.8rem 0' }}>El vocabulario aparece automáticamente después del Ancla del día.</p>}
-            </ModuleCard>
+              )}
+              {!vocabResp && <>
+                <p style={{ fontSize: '0.88rem', color: '#1A1A1A', fontWeight: 500, marginBottom: 8 }}>Usa una de estas palabras en una oración propia:</p>
+                <TA value={vocabPractice} onChange={e => setVocabPractice(e.target.value)} placeholder="Escribe tu oración en inglés..." rows={3} />
+                <PrimaryBtn onClick={submitVocab} disabled={vocabLoading || !vocabPractice.trim()} fullWidth>
+                  {vocabLoading ? <><Dots color="#fff" />Revisando...</> : 'Enviar oración →'}
+                </PrimaryBtn>
+              </>}
+              {vocabResp && <>
+                <FeedbackBox label="Feedback" color="#0A9B6E" content={vocabResp} />
+                <div style={{ marginTop: 16 }}>
+                  <PrimaryBtn onClick={() => setSessionStep('reto')} fullWidth>Continuar →</PrimaryBtn>
+                </div>
+              </>}
+            </PageWrap>
+          )}
 
-            <ModuleCard icon="◉" title="Mini reto" mins="5 min" borderColor="#B85C00" bgColor="#FDF3E7" status={done.retoComplete ? 'done' : done.ancla ? 'pending' : 'locked'} locked={!done.ancla} open={openMod === 'reto'} onToggle={() => setOpenMod(openMod === 'reto' ? null : 'reto')}>
-              {retoPattern ? <>
-                <AIBox label="Patrón del día" color="#B85C00" content={retoPattern} />
-                {!done.retoComplete && <>
-                  <TA value={retoInput} onChange={e => setRetoInput(e.target.value)} placeholder="Practica el patrón aquí..." rows={3} />
-                  <Btn onClick={submitReto} disabled={retoLoading || !retoInput.trim()}>{retoLoading ? <><Dots /> Verificando...</> : 'Verificar →'}</Btn>
-                </>}
-                {retoResp && <AIBox label="Corrección" color="#2D5BE3" content={retoResp} />}
-              </> : <p style={{ fontSize: '0.85rem', color: '#B0AEA8', padding: '0.8rem 0' }}>El reto aparece automáticamente después del Ancla del día.</p>}
-            </ModuleCard>
+          {/* ── MINI RETO ── */}
+          {sessionStep === 'reto' && (
+            <PageWrap>
+              <div style={{ display: 'inline-block', background: '#FDF3E7', color: '#B85C00', fontSize: '0.72rem', fontWeight: 700, padding: '4px 12px', borderRadius: 99, marginBottom: '1.2rem', letterSpacing: '0.06em' }}>MÓDULO 3 · MINI RETO</div>
+              <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(1.4rem,4vw,1.85rem)', lineHeight: 1.25, marginBottom: '0.7rem', letterSpacing: '-0.02em', fontWeight: 400 }}>El patrón del día</h2>
+              <p style={{ fontSize: '0.88rem', color: '#6B6966', marginBottom: '1.4rem', lineHeight: 1.6 }}>Basado en tu texto, aquí está el patrón que más te conviene practicar hoy.</p>
+              {retoPattern
+                ? <>
+                  <div style={{ background: '#FFFFFF', border: '1px solid #F0D9B5', borderRadius: 14, padding: '1.1rem 1.2rem', marginBottom: 20 }}>
+                    <div dangerouslySetInnerHTML={{ __html: fmt(retoPattern) }} style={{ fontSize: '0.9rem', lineHeight: 1.75, color: '#1A1A1A' }} />
+                  </div>
+                  {!retoResp && <>
+                    <p style={{ fontSize: '0.88rem', color: '#1A1A1A', fontWeight: 500, marginBottom: 8 }}>Practica el patrón aquí:</p>
+                    <TA value={retoInput} onChange={e => setRetoInput(e.target.value)} placeholder="Escribe en inglés..." rows={3} />
+                    <PrimaryBtn onClick={submitReto} disabled={retoLoading || !retoInput.trim()} fullWidth>
+                      {retoLoading ? <><Dots color="#fff" />Verificando...</> : 'Verificar →'}
+                    </PrimaryBtn>
+                  </>}
+                  {retoResp && <>
+                    <FeedbackBox label="Corrección" color="#B85C00" content={retoResp} />
+                    <div style={{ marginTop: 16 }}>
+                      <PrimaryBtn onClick={() => setSessionStep('review')} fullWidth>Continuar →</PrimaryBtn>
+                    </div>
+                  </>}
+                </>
+                : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', gap: 12, color: '#6B6966', fontSize: '0.9rem' }}>
+                  <Dots color="#B85C00" /><span>Preparando tu reto...</span>
+                </div>
+              }
+            </PageWrap>
+          )}
 
-            <ModuleCard icon="◇" title="Revisión rápida" mins="3 min" borderColor="#C23B22" bgColor="#FDEEE9" status={done.review ? 'done' : 'pending'} open={openMod === 'review'} onToggle={() => setOpenMod(openMod === 'review' ? null : 'review')}>
+          {/* ── REVISIÓN ── */}
+          {sessionStep === 'review' && (
+            <PageWrap>
+              <div style={{ display: 'inline-block', background: '#FDEEE9', color: '#C23B22', fontSize: '0.72rem', fontWeight: 700, padding: '4px 12px', borderRadius: 99, marginBottom: '1.2rem', letterSpacing: '0.06em' }}>MÓDULO 4 · REVISIÓN RÁPIDA</div>
+              <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(1.4rem,4vw,1.85rem)', lineHeight: 1.25, marginBottom: '0.7rem', letterSpacing: '-0.02em', fontWeight: 400 }}>
+                {reviewCards.length > 0 ? `Tarjeta ${reviewIdx + 1} de ${reviewCards.length}` : 'Sin tarjetas aún'}
+              </h2>
               {reviewCards.length === 0
-                ? <p style={{ fontSize: '0.85rem', color: '#B0AEA8', padding: '0.8rem 0' }}>Aún no tienes tarjetas. Completa más sesiones para acumular vocabulario.</p>
-                : <>
-                  <p style={{ fontSize: '0.82rem', color: '#6B6966', padding: '0.8rem 0 0.6rem' }}>Toca cada tarjeta para ver la definición:</p>
-                  {reviewCards.map((w, i) => (
-                    <div key={i} style={{ marginBottom: 8 }}>
-                      <div onClick={() => setFlipped(p => ({ ...p, [i]: !p[i] }))}
-                        style={{ background: flipped[i] ? '#FDEEE9' : '#F7F6F2', border: `1.5px solid ${flipped[i] ? '#C23B22' : '#E8E6E0'}`, borderRadius: 12, padding: '1rem', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s' }}>
-                        <div style={{ fontSize: '1.05rem', fontFamily: "'Fraunces',serif", fontWeight: 400 }}>{w.word}</div>
-                        {flipped[i] && <div style={{ fontSize: '0.82rem', color: '#6B6966', lineHeight: 1.5, marginTop: 8 }}>{w.def}<br /><em style={{ fontSize: '0.78rem' }}>"{w.example}"</em></div>}
-                        {!flipped[i] && <div style={{ fontSize: '0.72rem', color: '#B0AEA8', marginTop: 4 }}>Toca para ver</div>}
+                ? <>
+                  <p style={{ fontSize: '0.9rem', color: '#6B6966', lineHeight: 1.6, marginBottom: '1.5rem' }}>Aún no tienes tarjetas guardadas. Con cada sesión se van acumulando. ¡Vuelve mañana!</p>
+                  <PrimaryBtn onClick={() => setSessionStep('cierre')} fullWidth>Continuar →</PrimaryBtn>
+                </>
+                : (() => {
+                  const card = reviewCards[reviewIdx]
+                  const isLast = reviewIdx >= reviewCards.length - 1
+                  return (
+                    <>
+                      <p style={{ fontSize: '0.88rem', color: '#6B6966', marginBottom: '1.5rem', lineHeight: 1.6 }}>Toca la tarjeta para ver si la recuerdas.</p>
+                      {/* Card */}
+                      <div onClick={() => setReviewFlipped(p => !p)}
+                        style={{ background: reviewFlipped ? '#FDEEE9' : '#FFFFFF', border: `2px solid ${reviewFlipped ? '#C23B22' : '#E0DED8'}`, borderRadius: 18, padding: '2rem 1.5rem', textAlign: 'center', cursor: 'pointer', transition: 'all 0.25s', minHeight: 160, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, boxShadow: reviewFlipped ? '0 0 0 4px rgba(194,59,34,0.1)' : '0 2px 8px rgba(0,0,0,0.07)', marginBottom: 16 }}>
+                        <div style={{ fontFamily: "'Fraunces',serif", fontSize: '1.5rem', fontWeight: 400, color: reviewFlipped ? '#C23B22' : '#1A1A1A' }}>{card.word}</div>
+                        {reviewFlipped
+                          ? <>
+                            <div style={{ fontSize: '0.9rem', color: '#2A2A2A', lineHeight: 1.6 }}>{card.def}</div>
+                            <div style={{ fontSize: '0.85rem', fontStyle: 'italic', color: '#6B6966' }}>"{card.example}"</div>
+                          </>
+                          : <div style={{ fontSize: '0.8rem', color: '#B0AEA8' }}>Toca para ver la definición</div>
+                        }
                       </div>
-                      {flipped[i] && (
-                        <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-                          {[['Lo tenía ✓', '#0A9B6E'], ['Repasar ↺', '#C23B22']].map(([label, color]) => (
-                            <button key={label} onClick={() => { setFlipped(p => ({ ...p, [i]: false })); markDone('review') }}
-                              style={{ flex: 1, padding: '0.55rem', borderRadius: 10, border: `1.5px solid ${color}`, background: 'transparent', color, fontSize: '0.82rem', cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 500 }}>
+                      {/* Actions */}
+                      {reviewFlipped
+                        ? <div style={{ display: 'flex', gap: 10 }}>
+                          {[['✓ Lo tenía', '#0A9B6E', '#E6F7F2'], ['↺ Repasar', '#C23B22', '#FDEEE9']].map(([label, color, bg]) => (
+                            <button key={label}
+                              onClick={() => {
+                                if (isLast) { setSessionStep('cierre') }
+                                else { setReviewIdx(p => p + 1); setReviewFlipped(false) }
+                              }}
+                              style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: `1.5px solid ${color}`, background: bg, color, fontSize: '0.9rem', cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 600, transition: 'transform 0.1s' }}>
                               {label}
                             </button>
                           ))}
                         </div>
-                      )}
+                        : <div style={{ textAlign: 'center', fontSize: '0.8rem', color: '#B0AEA8' }}>Decide si lo recuerdas antes de ver la respuesta</div>
+                      }
+                    </>
+                  )
+                })()
+              }
+            </PageWrap>
+          )}
+
+          {/* ── CIERRE ── */}
+          {sessionStep === 'cierre' && (
+            <PageWrap>
+              <div style={{ display: 'inline-block', background: '#E6F7F2', color: '#0A7A57', fontSize: '0.72rem', fontWeight: 700, padding: '4px 12px', borderRadius: 99, marginBottom: '1.2rem', letterSpacing: '0.06em' }}>MÓDULO 5 · CIERRE DEL DÍA</div>
+              <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(1.4rem,4vw,1.85rem)', lineHeight: 1.25, marginBottom: '0.7rem', letterSpacing: '-0.02em', fontWeight: 400 }}>Resumen de tu sesión</h2>
+              <p style={{ fontSize: '0.88rem', color: '#6B6966', marginBottom: '1.5rem', lineHeight: 1.6 }}>¿Qué aprendiste hoy y en qué enfocarte mañana?</p>
+              {cierreText
+                ? <>
+                  <FeedbackBox label="Tu resumen" color="#0A9B6E" content={cierreText} />
+                  <div style={{ marginTop: 16 }}>
+                    <PrimaryBtn onClick={() => setSessionStep('done')} fullWidth>Ver mi progreso →</PrimaryBtn>
+                  </div>
+                </>
+                : <PrimaryBtn onClick={submitCierre} disabled={cierreLoading} fullWidth>
+                  {cierreLoading ? <><Dots color="#fff" />Generando...</> : 'Generar mi resumen →'}
+                </PrimaryBtn>
+              }
+            </PageWrap>
+          )}
+
+          {/* ── DONE ── */}
+          {sessionStep === 'done' && (
+            <PageWrap>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 20 }}>
+                <div style={{ width: 72, height: 72, borderRadius: '50%', background: '#E6F7F2', border: '2px solid #0A9B6E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>✓</div>
+                <div>
+                  <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '1.8rem', fontWeight: 400, letterSpacing: '-0.02em', marginBottom: 8 }}>Sesión completada</h2>
+                  <p style={{ fontSize: '0.9rem', color: '#6B6966', lineHeight: 1.6 }}>Racha actual: <strong style={{ color: '#0A9B6E' }}>{state.streak || 1} días</strong></p>
+                </div>
+                <div style={{ background: '#FFFFFF', borderRadius: 16, padding: '1rem 1.25rem', border: '1px solid #E8E6E0', width: '100%', textAlign: 'left' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6B6966', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Esta sesión</div>
+                  {[['Ancla del día', 'Texto libre analizado por IA'], ['Vocabulario', '3 palabras de tu contexto'], ['Mini reto', 'Patrón gramatical practicado'], ['Revisión', 'Tarjetas de sesiones anteriores'], ['Cierre', 'Resumen personalizado']].map(([title, desc]) => (
+                    <div key={title} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: '1px solid #F0EFE9' }}>
+                      <span style={{ color: '#0A9B6E', fontWeight: 700, fontSize: 14 }}>✓</span>
+                      <div>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 500 }}>{title}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#6B6966' }}>{desc}</div>
+                      </div>
                     </div>
                   ))}
-                </>}
-            </ModuleCard>
-
-            <ModuleCard icon="◎" title="Cierre del día" mins="2 min" borderColor="#0A9B6E" bgColor="#E6F7F2" status={done.cierre ? 'done' : 'pending'} open={openMod === 'cierre'} onToggle={() => setOpenMod(openMod === 'cierre' ? null : 'cierre')}>
-              {cierreText
-                ? <AIBox label="Resumen del día" color="#0A9B6E" content={cierreText} />
-                : <>
-                  <p style={{ fontSize: '0.88rem', color: '#6B6966', padding: '0.8rem 0 0.6rem', lineHeight: 1.6 }}>Genera tu resumen personalizado — qué aprendiste hoy y en qué enfocarte mañana.</p>
-                  <Btn onClick={genCierre} disabled={cierreLoading} full>{cierreLoading ? <><Dots /> Generando...</> : 'Generar mi resumen →'}</Btn>
-                </>}
-            </ModuleCard>
-          </div>
-        )}
-
-        {tab === 'progress' && (
-          <div style={{ maxWidth: 720, margin: '0 auto', padding: '1.5rem' }} className="fade-up">
-            <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '1.5rem', letterSpacing: '-0.02em', fontWeight: 400, marginBottom: '1.5rem', color: '#1A1A1A' }}>Mi progreso</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 10, marginBottom: '1.5rem' }}>
-              {[['Sesiones', state.sessions?.length || 0, 'completadas', '#2D5BE3'], ['Vocabulario', state.vocab?.length || 0, 'palabras', '#0A9B6E'], ['Racha', state.streak || 0, 'días', '#B85C00']].map(([label, val, sub, color]) => (
-                <div key={label} style={{ background: '#FFFFFF', border: '1px solid #E8E6E0', borderRadius: 14, padding: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                  <div style={{ fontSize: '0.72rem', color: '#6B6966', marginBottom: 8 }}>{label}</div>
-                  <div style={{ fontSize: '1.6rem', fontFamily: "'Fraunces',serif", fontWeight: 400, color, lineHeight: 1 }}>{val}</div>
-                  <div style={{ fontSize: '0.72rem', color: '#6B6966', marginTop: 4 }}>{sub}</div>
                 </div>
-              ))}
-            </div>
-            <div style={{ height: 1, background: '#E8E6E0', margin: '0 0 1.2rem' }} />
-            <div style={{ fontSize: '0.85rem', color: '#6B6966', marginBottom: '0.8rem', fontWeight: 500 }}>Lo que has aprendido</div>
-            {(!state.learned || state.learned.length === 0)
-              ? <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#B0AEA8', fontSize: '0.9rem', lineHeight: 1.6 }}>Aún no hay registros.<br />Completa tu primera sesión.</div>
-              : <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {state.learned.slice(0, 10).map((l, i) => (
-                  <div key={i} style={{ background: '#FFFFFF', border: '1px solid #E8E6E0', borderRadius: 10, padding: '0.9rem 1rem', display: 'flex', alignItems: 'flex-start', gap: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#0A9B6E', flexShrink: 0, marginTop: 6 }} />
-                    <div>
-                      <div style={{ fontSize: '0.87rem', lineHeight: 1.5, color: '#1A1A1A' }}>{l.text}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#6B6966', marginTop: 3 }}>{l.date}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>}
+                <PrimaryBtn onClick={() => setView('home')} fullWidth>Volver al inicio →</PrimaryBtn>
+              </div>
+            </PageWrap>
+          )}
+
+        </AppShell>
+      </>
+    )
+  }
+
+  // ══════════════════════════════════════════════════════
+  // PROGRESS
+  // ══════════════════════════════════════════════════════
+  if (view === 'progress') return (
+    <>
+      <style>{CSS}</style>
+      <div style={{ minHeight: '100vh', background: '#F4F3EF', display: 'flex', flexDirection: 'column' }}>
+        <header style={{ background: '#FFFFFF', borderBottom: '1px solid #E8E6E0', padding: '0 1.5rem', display: 'flex', alignItems: 'center', gap: 12, height: 56 }}>
+          <button onClick={() => setView('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6966', fontSize: 20, padding: '4px 6px', borderRadius: 8 }}>←</button>
+          <span style={{ fontFamily: "'Fraunces',serif", fontSize: '1.1rem', letterSpacing: '-0.02em' }}>Mi progreso</span>
+        </header>
+        <div className="fade-up" style={{ maxWidth: 560, width: '100%', margin: '0 auto', padding: '1.5rem', flex: 1 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, marginBottom: 16 }}>
+            {[['Sesiones', state.sessions?.length || 0, 'completadas', '#2D5BE3'], ['Vocabulario', state.vocab?.length || 0, 'palabras guardadas', '#0A9B6E'], ['Racha', state.streak || 0, 'días seguidos', '#B85C00']].map(([label, val, sub, color]) => (
+              <div key={label} style={{ background: '#FFFFFF', borderRadius: 14, padding: '1rem', border: '1px solid #E8E6E0', textAlign: 'center' }}>
+                <div style={{ fontFamily: "'Fraunces',serif", fontSize: '1.6rem', fontWeight: 400, color, lineHeight: 1 }}>{val}</div>
+                <div style={{ fontSize: '0.7rem', color: '#6B6966', marginTop: 4, lineHeight: 1.4 }}>{sub}</div>
+              </div>
+            ))}
           </div>
-        )}
+          <div style={{ background: '#FFFFFF', borderRadius: 16, border: '1px solid #E8E6E0', overflow: 'hidden' }}>
+            <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #F0EFE9' }}>
+              <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>Todo lo que has aprendido</span>
+            </div>
+            {(!state.learned || state.learned.length === 0)
+              ? <div style={{ padding: '2rem', textAlign: 'center', color: '#B0AEA8', fontSize: '0.88rem' }}>Aún no hay registros. Completa tu primera sesión.</div>
+              : state.learned.map((l, i) => (
+                <div key={i} style={{ padding: '0.85rem 1.25rem', borderBottom: i < state.learned.length - 1 ? '1px solid #F0EFE9' : 'none', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#0A9B6E', flexShrink: 0, marginTop: 6 }} />
+                  <div>
+                    <div style={{ fontSize: '0.87rem', lineHeight: 1.5, color: '#1A1A1A' }}>{l.text}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#B0AEA8', marginTop: 2 }}>{l.date}</div>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </div>
       </div>
     </>
   )
+
+  return null
 }
