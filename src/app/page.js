@@ -29,10 +29,14 @@ const quotes = [
 ]
 
 const chatTopics = [
-  'Tu trabajo o carrera', 'Viajes que has hecho o quieres hacer',
-  'Una serie o película que estás viendo', 'Tu rutina diaria',
-  'Algo que aprendiste recientemente', 'Tus planes para el futuro',
-  'Un hobby o actividad que disfrutas', 'La última vez que usaste inglés',
+  { es: 'Tu trabajo o carrera', en: 'your work or career' },
+  { es: 'Viajes que has hecho o quieres hacer', en: 'travel experiences or places you want to visit' },
+  { es: 'Una serie o película que estás viendo', en: 'a TV show or movie you are watching' },
+  { es: 'Tu rutina diaria', en: 'your daily routine' },
+  { es: 'Algo que aprendiste recientemente', en: 'something you learned recently' },
+  { es: 'Tus planes para el futuro', en: 'your plans for the future' },
+  { es: 'Un hobby o actividad que disfrutas', en: 'a hobby or activity you enjoy' },
+  { es: 'La última vez que usaste inglés', en: 'the last time you used English' },
 ]
 
 const situations = [
@@ -76,35 +80,38 @@ async function callAI(prompt) {
 }
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
   html, body { height:100%; }
-  body { background:#F4F3EF; font-family:'Plus Jakarta Sans',sans-serif; font-weight:300; color:#1A1A1A; -webkit-font-smoothing:antialiased; }
+  body { background:#F4F3EF; font-family:'Plus Jakarta Sans',sans-serif; font-weight:300; color:#1A1A1A; -webkit-font-smoothing:antialiased; letter-spacing:-0.01em; }
   @keyframes pulse { 0%,80%,100%{opacity:.15;transform:scale(.65)} 40%{opacity:1;transform:scale(1)} }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
   @keyframes fadeIn { from{opacity:0} to{opacity:1} }
   @keyframes popIn { from{opacity:0;transform:scale(0.93)} to{opacity:1;transform:scale(1)} }
   @keyframes checkPop { 0%{transform:scale(0)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
-  @keyframes slideUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-  .fade-up { animation: fadeUp 0.45s cubic-bezier(0.16,1,0.3,1) both; }
-  .fade-in { animation: fadeIn 0.3s ease both; }
-  .pop-in { animation: popIn 0.35s cubic-bezier(0.16,1,0.3,1) both; }
+  @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .fade-up { animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+  .fade-in { animation: fadeIn 0.35s ease both; }
+  .pop-in { animation: popIn 0.4s cubic-bezier(0.16,1,0.3,1) both; }
   .slide-up { animation: slideUp 0.3s cubic-bezier(0.16,1,0.3,1) both; }
   textarea { transition: border-color 0.2s, box-shadow 0.2s; }
-  textarea:focus { outline:none; border-color:#2D5BE3 !important; box-shadow:0 0 0 3px rgba(45,91,227,0.1) !important; }
-  ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-thumb{background:#D3D1C7;border-radius:2px}
-  .btn-hover:hover { opacity:0.9; transform:translateY(-1px); }
-  .btn-hover:active { transform:scale(0.98) translateY(0); }
-  .card-hover { transition: border-color 0.2s, box-shadow 0.2s; }
-  .card-hover:hover { border-color:#B0AEA8 !important; box-shadow:0 4px 16px rgba(0,0,0,0.08) !important; }
+  textarea:focus { outline:none; border-color:#2D5BE3 !important; box-shadow:0 0 0 3px rgba(45,91,227,0.08) !important; }
+  input:focus { outline:none; border-color:#2D5BE3; box-shadow:0 0 0 3px rgba(45,91,227,0.08); }
+  ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:#D3D1C7;border-radius:2px}
+  .btn-press { transition: transform 0.1s, opacity 0.1s; }
+  .btn-press:hover { opacity:0.92; }
+  .btn-press:active { transform:scale(0.97); }
+  .card-tap { transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s; }
+  .card-tap:hover { border-color:#C0BEB8 !important; box-shadow:0 4px 16px rgba(0,0,0,0.09) !important; }
+  .card-tap:active { transform:scale(0.99); }
 `
 
-function Dots({ color = '#2D5BE3' }) {
-  return (
-    <span style={{ display: 'inline-flex', gap: 4, alignItems: 'center' }}>
-      {[0, 1, 2].map(i => <span key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: color, display: 'inline-block', animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />)}
-    </span>
-  )
+  ({ color = '#2D5BE3' }) {
+    return (
+      <span style={{ display: 'inline-flex', gap: 4, alignItems: 'center' }}>
+        {[0, 1, 2].map(i => <span key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: color, display: 'inline-block', animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />)}
+      </span>
+    )
 }
 
 function TA({ value, onChange, placeholder, hint, rows = 5, disabled }) {
@@ -128,7 +135,7 @@ function Btn({ onClick, disabled, loading, children, fullWidth, variant = 'prima
     danger: { bg: '#C23B22', color: '#fff', border: 'none', shadow: 'none' },
   }[variant]
   return (
-    <button onClick={onClick} disabled={disabled || loading} className="btn-hover"
+    <button onClick={onClick} disabled={disabled || loading} className="btn-press"
       style={{ background: v.bg, color: v.color, border: v.border, borderRadius: 14, padding: small ? '0.6rem 1rem' : '0.9rem 1.5rem', fontSize: small ? '0.85rem' : '0.95rem', fontWeight: 500, cursor: (disabled || loading) ? 'not-allowed' : 'pointer', fontFamily: "'Plus Jakarta Sans',sans-serif", width: fullWidth ? '100%' : 'auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'all 0.15s', boxShadow: v.shadow }}>
       {loading ? <><Dots color={variant === 'ghost' ? '#6B6966' : '#fff'} />{children}</> : children}
     </button>
@@ -137,7 +144,7 @@ function Btn({ onClick, disabled, loading, children, fullWidth, variant = 'prima
 
 function FeedbackBox({ label, color, bgColor, content, delay = 0 }) {
   return (
-    <div className="slide-up" style={{ background: bgColor || '#F4F3EF', border: `1.5px solid ${color}20`, borderLeft: `3px solid ${color}`, borderRadius: 14, padding: '1.2rem', marginTop: 16, animationDelay: `${delay}ms` }}>
+    <div className="slide-up" style={{ background: bgColor || '#F4F3EF', border: `1px solid ${color}18`, borderLeft: `3px solid ${color}`, borderRadius: 14, padding: '1.25rem 1.2rem', marginTop: 16, animationDelay: `${delay}ms`, boxShadow: `0 1px 4px ${color}10` }}>
       <div style={{ fontSize: '0.7rem', fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
         <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, display: 'inline-block' }} />{label}
       </div>
@@ -175,7 +182,7 @@ function PageContent({ children }) {
 }
 
 function ModuleTag({ label, color, bg }) {
-  return <div style={{ display: 'inline-block', background: bg, color, fontSize: '0.7rem', fontWeight: 700, padding: '4px 12px', borderRadius: 99, marginBottom: '1.1rem', letterSpacing: '0.06em' }}>{label}</div>
+  return <div style={{ display: 'inline-block', background: bg, color, fontSize: '0.68rem', fontWeight: 700, padding: '5px 14px', borderRadius: 99, marginBottom: '1.2rem', letterSpacing: '0.07em' }}>{label}</div>
 }
 
 function WarningBox({ message }) {
@@ -274,7 +281,8 @@ export default function Home() {
 
   function startChat(topic) {
     setChatTopic(topic)
-    setChatMessages([{ role: 'assistant', text: `Perfecto, hablemos sobre "${topic}". Te hago una pregunta para arrancar — respóndeme en inglés como puedas:\n\nWhat do you think about ${topic.toLowerCase()}? Tell me something about your experience with it.` }])
+    const opening = 'Let us talk about ' + topic.en + '. Answer in English as best you can:\n\nWhat can you tell me about ' + topic.en + '? Share something from your own experience.'
+    setChatMessages([{ role: 'assistant', text: opening }])
     setChatInput(''); setChatEnded(false); setChatFeedback('')
     setView('chat')
   }
@@ -400,7 +408,7 @@ export default function Home() {
     setChatMessages(newMessages); setChatInput(''); setChatLoading(true)
     try {
       const history = newMessages.map(m => `${m.role === 'user' ? 'Aprendiz' : 'Coach'}: ${m.text}`).join('\n')
-      const resp = await callAI(`Eres un coach de inglés amigable. Estás teniendo una conversación ORAL simulada con un aprendiz hispanohablante de nivel B1 sobre el tema: "${chatTopic}".\n\nReglas:\n- Responde en inglés natural pero simple (nivel B1-B2)\n- Haz UNA sola pregunta de seguimiento al final\n- Si el aprendiz escribe en español, respóndele en español diciéndole amablemente que intente en inglés\n- Mantén la conversación fluida y natural\n- Máximo 3 oraciones de respuesta\n\nHistorial:\n${history}\n\nCoach:`)
+      const resp = await callAI(`Eres un coach de inglés amigable. Estás teniendo una conversación ORAL simulada con un aprendiz hispanohablante de nivel B1 sobre el tema: "${typeof chatTopic === 'object' ? chatTopic.en : chatTopic}".\n\nReglas:\n- Responde en inglés natural pero simple (nivel B1-B2)\n- Haz UNA sola pregunta de seguimiento al final\n- Si el aprendiz escribe en español, respóndele en español diciéndole amablemente que intente en inglés\n- Mantén la conversación fluida y natural\n- Máximo 3 oraciones de respuesta\n\nHistorial:\n${history}\n\nCoach:`)
       setChatMessages(p => [...p, { role: 'assistant', text: resp }])
     } catch (e) { }
     setChatLoading(false)
@@ -410,8 +418,8 @@ export default function Home() {
     setChatLoading(true)
     try {
       const history = chatMessages.filter(m => m.role === 'user').map(m => m.text).join(' | ')
-      const resp = await callAI(`Eres coach de inglés. RESPONDE EN ESPAÑOL natural y cálido.\n\nEl aprendiz tuvo una conversación en inglés sobre "${chatTopic}". Sus mensajes: "${history}"\n\nDa un feedback personal de 3-4 oraciones:\n1. Algo específico que hizo bien (menciona sus palabras reales)\n2. Una expresión o patrón para mejorar\n3. Una frase de cierre motivadora\n\nTono: amigo que estuvo escuchando toda la conversación.`)
-      setChatFeedback(resp); setChatEnded(true); addLearned(`Chat sobre: ${chatTopic}`)
+      const resp = await callAI(`Eres coach de inglés. RESPONDE EN ESPAÑOL natural y cálido.\n\nEl aprendiz tuvo una conversación en inglés sobre "${typeof chatTopic === 'object' ? chatTopic.en : chatTopic}". Sus mensajes: "${history}"\n\nDa un feedback personal de 3-4 oraciones:\n1. Algo específico que hizo bien (menciona sus palabras reales)\n2. Una expresión o patrón para mejorar\n3. Una frase de cierre motivadora\n\nTono: amigo que estuvo escuchando toda la conversación.`)
+      setChatFeedback(resp); setChatEnded(true); addLearned(`Chat libre: ${typeof chatTopic === 'object' ? chatTopic.es : chatTopic}`)
     } catch (e) { }
     setChatLoading(false)
   }
@@ -522,7 +530,7 @@ export default function Home() {
           <div style={{ maxWidth: 560, width: '100%', margin: '0 auto', padding: '1.5rem 1.25rem', flex: 1, display: 'flex', flexDirection: 'column', gap: 14, overflowY: 'auto' }}>
 
             {/* Hero */}
-            <div style={{ background: '#2D5BE3', borderRadius: 20, padding: '1.6rem', color: '#fff', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ background: 'linear-gradient(135deg,#2D5BE3 0%,#1A3FA0 100%)', borderRadius: 20, padding: '1.6rem 1.7rem', color: '#fff', position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', top: -30, right: -30, width: 140, height: 140, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
               <div style={{ position: 'absolute', bottom: -20, right: 20, width: 90, height: 90, borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
               <div style={{ position: 'relative' }}>
@@ -537,8 +545,6 @@ export default function Home() {
                 }
                 <button onClick={startSession}
                   style={{ background: '#FFFFFF', color: '#2D5BE3', border: 'none', borderRadius: 12, padding: '0.75rem 1.4rem', fontSize: '0.95rem', fontWeight: 600, cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',sans-serif", display: 'inline-flex', alignItems: 'center', gap: 8, boxShadow: '0 2px 12px rgba(0,0,0,0.15)', transition: 'transform 0.1s' }}
-                  onMouseDown={e => e.currentTarget.style.transform = 'scale(0.97)'}
-                  onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
                 >
                   {todayDone ? 'Otra sesión →' : 'Iniciar sesión de hoy →'}
                 </button>
@@ -547,10 +553,10 @@ export default function Home() {
 
             {/* Stats */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
-              {[['🔥', state.streak || 0, 'días de racha'], ['📚', state.vocab?.length || 0, 'palabras'], ['✓', state.sessions?.length || 0, 'sesiones']].map(([icon, val, label]) => (
+              {[['🔥', state.streak || 0, 'días de racha', '#B85C00', '#FDF3E7'], ['📚', state.vocab?.length || 0, 'palabras', '#0A7A57', '#E6F7F2'], ['✓', state.sessions?.length || 0, 'sesiones', '#2D5BE3', '#EBF0FD']].map(([icon, val, label, color, bg]) => (
                 <div key={label} style={{ background: '#FFFFFF', borderRadius: 14, padding: '0.9rem', border: '1px solid #ECEAE4', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                   <div style={{ fontSize: 18, marginBottom: 4 }}>{icon}</div>
-                  <div style={{ fontFamily: "'Fraunces',serif", fontSize: '1.4rem', fontWeight: 400, color: '#1A1A1A', lineHeight: 1 }}>{val}</div>
+                  <div style={{ fontFamily: "'Fraunces',serif", fontSize: '1.5rem', fontWeight: 400, color, lineHeight: 1 }}>{val}</div>
                   <div style={{ fontSize: '0.7rem', color: '#6B6966', marginTop: 4 }}>{label}</div>
                 </div>
               ))}
@@ -562,7 +568,7 @@ export default function Home() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
 
                 {/* Chat libre */}
-                <div className="card-hover" onClick={() => setView('chat-select')} style={{ background: '#FFFFFF', borderRadius: 16, padding: '1rem', border: '1px solid #ECEAE4', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                <div className="card-tap" onClick={() => setView('chat-select')} style={{ background: '#FFFFFF', borderRadius: 16, padding: '1rem', border: '1px solid #ECEAE4', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                   <div style={{ fontSize: 24, marginBottom: 8 }}>💬</div>
                   <div style={{ fontSize: '0.9rem', fontWeight: 500, color: '#1A1A1A', marginBottom: 3 }}>Chat libre</div>
                   <div style={{ fontSize: '0.75rem', color: '#6B6966', lineHeight: 1.5 }}>Conversa en inglés sobre lo que quieras</div>
@@ -570,7 +576,7 @@ export default function Home() {
                 </div>
 
                 {/* Duelo */}
-                <div className="card-hover" onClick={startDuel} style={{ background: '#FFFFFF', borderRadius: 16, padding: '1rem', border: '1px solid #ECEAE4', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                <div className="card-tap" onClick={startDuel} style={{ background: '#FFFFFF', borderRadius: 16, padding: '1rem', border: '1px solid #ECEAE4', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                   <div style={{ fontSize: 24, marginBottom: 8 }}>⚡</div>
                   <div style={{ fontSize: '0.9rem', fontWeight: 500, color: '#1A1A1A', marginBottom: 3 }}>Duelo rápido</div>
                   <div style={{ fontSize: '0.75rem', color: '#6B6966', lineHeight: 1.5 }}>Elige la respuesta correcta — 5 preguntas</div>
@@ -578,7 +584,7 @@ export default function Home() {
                 </div>
 
                 {/* Situación real */}
-                <div className="card-hover" onClick={() => setView('sit-select')} style={{ background: '#FFFFFF', borderRadius: 16, padding: '1rem', border: '1px solid #ECEAE4', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                <div className="card-tap" onClick={() => setView('sit-select')} style={{ background: '#FFFFFF', borderRadius: 16, padding: '1rem', border: '1px solid #ECEAE4', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                   <div style={{ fontSize: 24, marginBottom: 8 }}>🎭</div>
                   <div style={{ fontSize: '0.9rem', fontWeight: 500, color: '#1A1A1A', marginBottom: 3 }}>Situación real</div>
                   <div style={{ fontSize: '0.75rem', color: '#6B6966', lineHeight: 1.5 }}>Roleplay de trabajo, viaje o vida real</div>
@@ -586,7 +592,7 @@ export default function Home() {
                 </div>
 
                 {/* Frase del día */}
-                <div className="card-hover" onClick={loadFrase} style={{ background: '#FFFFFF', borderRadius: 16, padding: '1rem', border: '1px solid #ECEAE4', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                <div className="card-tap" onClick={loadFrase} style={{ background: '#FFFFFF', borderRadius: 16, padding: '1rem', border: '1px solid #ECEAE4', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                   <div style={{ fontSize: 24, marginBottom: 8 }}>🎯</div>
                   <div style={{ fontSize: '0.9rem', fontWeight: 500, color: '#1A1A1A', marginBottom: 3 }}>Frase del día</div>
                   <div style={{ fontSize: '0.75rem', color: '#6B6966', lineHeight: 1.5 }}>Una expresión nueva y útil cada día</div>
@@ -638,9 +644,9 @@ export default function Home() {
           <p style={{ fontSize: '0.9rem', color: '#6B6966', marginBottom: '1.5rem', lineHeight: 1.65 }}>Elige un tema y conversamos en inglés. Te corrijo al final — mientras, solo habla.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {chatTopics.map(topic => (
-              <button key={topic} onClick={() => startChat(topic)} className="card-hover"
+              <button key={topic} onClick={() => startChat(topic)} className="card-tap"
                 style={{ background: '#FFFFFF', border: '1px solid #ECEAE4', borderRadius: 14, padding: '0.9rem 1.1rem', cursor: 'pointer', fontSize: '0.92rem', color: '#1A1A1A', textAlign: 'left', fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 400, display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                <span>{topic}</span>
+                <span>{topic.es}</span>
                 <span style={{ color: '#B0AEA8' }}>→</span>
               </button>
             ))}
@@ -660,7 +666,7 @@ export default function Home() {
         <header style={{ background: '#FFFFFF', borderBottom: '1px solid #ECEAE4', padding: '0 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 54, flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <button onClick={() => setView('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6966', fontSize: 18, padding: '6px 8px', borderRadius: 10, lineHeight: 1 }}>←</button>
-            <span style={{ fontFamily: "'Fraunces',serif", fontSize: '1rem', letterSpacing: '-0.02em' }}>💬 {chatTopic}</span>
+            <span style={{ fontFamily: "'Fraunces',serif", fontSize: '1rem', letterSpacing: '-0.02em' }}>{typeof chatTopic === 'object' ? '💬 ' + chatTopic.es : '💬 ' + chatTopic}</span>
           </div>
           {!chatEnded && <button onClick={endChat} style={{ background: 'none', border: '1.5px solid #E0DED8', borderRadius: 10, padding: '5px 14px', fontSize: '0.82rem', color: '#6B6966', cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 500 }}>Terminar</button>}
         </header>
@@ -703,7 +709,7 @@ export default function Home() {
           <p style={{ fontSize: '0.9rem', color: '#6B6966', marginBottom: '1.5rem', lineHeight: 1.65 }}>Elige una situación y la practicamos juntos — yo seré el otro personaje.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {situations.map(sit => (
-              <button key={sit.title} onClick={() => startSituacion(sit)} className="card-hover"
+              <button key={sit.title} onClick={() => startSituacion(sit)} className="card-tap"
                 style={{ background: '#FFFFFF', border: '1px solid #ECEAE4', borderRadius: 14, padding: '1rem 1.1rem', cursor: 'pointer', textAlign: 'left', fontFamily: "'Plus Jakarta Sans',sans-serif", boxShadow: '0 1px 3px rgba(0,0,0,0.04)', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
                 <span style={{ fontSize: 24, flexShrink: 0 }}>{sit.icon}</span>
                 <div>
@@ -837,7 +843,24 @@ export default function Home() {
             </div>
             : frase && <>
               <div style={{ background: '#FFFFFF', border: '1px solid #ECEAE4', borderRadius: 16, padding: '1.4rem', marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-                <div dangerouslySetInnerHTML={{ __html: fmt(frase.replace(/FRASE:/g, '<strong style="font-size:1.1rem;color:#0A9B6E">').replace(/SIGNIFICADO:/g, '</strong><br/><br/><strong style="color:#6B6966;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em">Significado:</strong><br/>').replace(/CUÁNDO USARLA:/g, '<br/><br/><strong style="color:#6B6966;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em">Cuándo usarla:</strong><br/>').replace(/EJEMPLO:/g, '<br/><br/><strong style="color:#6B6966;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em">Ejemplo:</strong><br/><em>')) } + '</em>'} style={{ fontSize: '0.9rem', lineHeight: 1.8, color: '#1A1A1A' }} />
+                {(() => {
+                  const lines = frase.split('\n').filter(l => l.trim())
+                  const get = (key) => { const l = lines.find(x => x.startsWith(key)); return l ? l.replace(key, '').trim() : '' }
+                  const phrase = get('FRASE:')
+                  const meaning = get('SIGNIFICADO:')
+                  const when = get('CUÁNDO USARLA:')
+                  const example = get('EJEMPLO:')
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      <div style={{ background: '#E6F7F2', borderRadius: 12, padding: '1rem 1.1rem', textAlign: 'center' }}>
+                        <div style={{ fontSize: '1.3rem', fontFamily: "'Fraunces',serif", fontWeight: 400, color: '#0A7A57', marginBottom: 4 }}>{phrase}</div>
+                      </div>
+                      {meaning && <div><div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#6B6966', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Significado</div><div style={{ fontSize: '0.9rem', color: '#1A1A1A', lineHeight: 1.6 }}>{meaning}</div></div>}
+                      {when && <div><div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#6B6966', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Cuándo usarla</div><div style={{ fontSize: '0.9rem', color: '#1A1A1A', lineHeight: 1.6 }}>{when}</div></div>}
+                      {example && <div style={{ background: '#F4F3EF', borderRadius: 10, padding: '0.8rem 1rem' }}><div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#6B6966', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Ejemplo</div><div style={{ fontSize: '0.9rem', fontStyle: 'italic', color: '#1A1A1A', lineHeight: 1.6 }}>{example}</div></div>}
+                    </div>
+                  )
+                })()}
               </div>
               {!fraseResp ? <>
                 <p style={{ fontSize: '0.88rem', fontWeight: 500, color: '#1A1A1A', marginBottom: 8 }}>Ahora úsala en tu propia oración:</p>
@@ -989,8 +1012,6 @@ export default function Home() {
                           {[['✓  Lo tenía', '#0A9B6E', '#E6F7F2'], ['↺  Repasar', '#C23B22', '#FDEEE9']].map(([label, color, bg]) => (
                             <button key={label} onClick={() => { if (isLast) setSessionStep('cierre'); else { setReviewIdx(p => p + 1); setReviewFlipped(false) } }}
                               style={{ padding: '0.8rem', borderRadius: 12, border: `1.5px solid ${color}`, background: bg, color, fontSize: '0.9rem', cursor: 'pointer', fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 600, transition: 'transform 0.1s' }}
-                              onMouseDown={e => e.currentTarget.style.transform = 'scale(0.97)'}
-                              onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
                             >{label}</button>
                           ))}
                         </div>
