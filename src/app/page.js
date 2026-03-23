@@ -70,7 +70,7 @@ const duelWords = [
   { word: 'Suggest', q: 'She suggested ___ to the gym together.', options: ['to go', 'go', 'going', 'went'], correct: 2, exp: '"Suggest" va seguido de gerundio (suggest going) o "that + sujeto + verbo base" (suggest that we go). Nunca "suggest to go".' },
   { word: 'Wish', q: 'I wish I ___ speak English fluently.', options: ['can', 'could', 'would', 'will'], correct: 1, exp: '"Wish" para el presente usa pasado simple: "I wish I could" (pero no puedo). "I wish I were" (pero no soy). Expresa deseos sobre la realidad actual.' },
   { word: 'Used to vs Use to', q: 'Did you ___ live in Santiago?', options: ['use to', 'used to', 'using to', 'uses to'], correct: 0, exp: 'Con "did" (preguntas y negaciones), se usa "use to" sin la d: "Did you use to...?" En afirmativo: "I used to live there".' },
-  { word: 'Gerund vs Infinitive', q: 'I enjoy ___ new languages.', options: ['learn', 'to learn', 'learning', 'learned'], correct: 2, exp: 'Despues de "enjoy", "finish", "avoid", "consider", "mind" -> gerundio (-ing). Despues de "want", "decide", "hope", "need" -> infinitivo (to + verb).' },
+  { word: 'Gerund vs Infinitive', q: 'I enjoy ___ new languages.', options: ['learn', 'to learn', 'learning', 'learned'], correct: 2, exp: 'Despues de "enjoy", "finish", "avoid", "consider", "mind" → gerundio (-ing). Despues de "want", "decide", "hope", "need" → infinitivo (to + verb).' },
   { word: 'Too vs Enough', q: 'This coffee is ___ hot to drink.', options: ['enough', 'too', 'very', 'so'], correct: 1, exp: '"Too" significa "mas de lo deseable" (too hot = no puedo tomarlo). "Enough" significa "suficiente" (hot enough). "Too" va antes del adjetivo.' },
   { word: 'Already vs Yet', q: 'Have you finished the report ___?', options: ['already', 'yet', 'still', 'just'], correct: 1, exp: '"Yet" en preguntas y negaciones (have you done it yet? / I have not done it yet). "Already" en afirmaciones (I have already done it).' },
   { word: 'By vs Until', q: 'Please send me the file ___ Friday.', options: ['until', 'by', 'before to', 'at'], correct: 1, exp: '"By" = no mas tarde que (by Friday = antes del viernes). "Until" = hasta ese momento continuamente (I will wait until Friday).' },
@@ -417,7 +417,7 @@ export default function Home() {
     if (dayText.trim().length < 15) return
     setDayLoading(true); setDayWarning(''); setSessionDayText(dayText)
     try {
-      const resp = await callAI(`Eres un coach de ingles cercano. RESPONDE EN ESPANOL natural, como un amigo bilingue que te ayuda.\n\nVerifica si el texto esta en ingles real. Si no, responde: INVALID\nSi es muy corto o sin sentido, responde: TOO_SHORT\n\nSi es valido:\n**Buena noticia:** [algo MUY especifico que hizo bien -- menciona sus palabras exactas]\n\n**Una cosa para pulir:** [el error mas importante. Formato: "escribiste X -> suena mejor asi: Y". Una linea de explicacion.]\n\nTono: amigo cercano, no profesor. Sin tecnicismos.\n\nAl final agrega:\nVOCAB_JSON:[{"word":"w1","def":"def simple en espanol","example":"ejemplo natural en ingles"},{"word":"w2","def":"def","example":"ej"},{"word":"w3","def":"def","example":"ej"}]\n\nTexto: "${dayText}"`)
+      const resp = await callAI(`Eres un coach de ingles cercano. RESPONDE EN ESPANOL natural, como un amigo bilingue que te ayuda.\n\nVerifica si el texto esta en ingles real. Si no, responde: INVALID\nSi es muy corto o sin sentido, responde: TOO_SHORT\n\nSi es valido:\n**Buena noticia:** [algo MUY especifico que hizo bien -- menciona sus palabras exactas]\n\n**Una cosa para pulir:** [el error mas importante. Formato: "escribiste X → suena mejor asi: Y". Una linea de explicacion.]\n\nTono: amigo cercano, no profesor. Sin tecnicismos.\n\nAl final agrega:\nVOCAB_JSON:[{"word":"w1","def":"def simple en espanol","example":"ejemplo natural en ingles"},{"word":"w2","def":"def","example":"ej"},{"word":"w3","def":"def","example":"ej"}]\n\nTexto: "${dayText}"`)
       if (resp.trim().startsWith('INVALID')) {
         setDayWarning('Parece que esto no esta en ingles. Escribe aunque sea una oracion simple -- el nivel no importa.')
         setDayLoading(false); return
@@ -588,7 +588,7 @@ export default function Home() {
               <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--r)', padding: '1.4rem', marginBottom: '2rem', lineHeight: 1.75, fontSize: '0.95rem', color: 'var(--text)', boxShadow: 'var(--shadow-sm)' }}>
                 {empathy[obChoice].body}
               </div>
-              <Btn onClick={() => setObStep(3)} fullWidth>Muestrame como funciona -></Btn>
+              <Btn onClick={() => setObStep(3)} fullWidth>Muestrame como funciona →</Btn>
             </div>
           )}
 
@@ -600,7 +600,7 @@ export default function Home() {
               <input value={obName} onChange={e => setObName(e.target.value)} placeholder="Tu nombre..." onKeyDown={e => e.key === 'Enter' && obName.trim().length > 1 && setObStep(4)}
                 style={{ width: '100%', background: 'var(--surface)', border: '1.5px solid var(--border2)', borderRadius: 'var(--r)', padding: '0.95rem 1rem', fontSize: '1rem', color: 'var(--text)', fontFamily: "'DM Sans',sans-serif", marginBottom: 12, boxShadow: 'var(--shadow-sm)' }}
               />
-              <Btn onClick={() => setObStep(4)} disabled={obName.trim().length < 2} fullWidth>Continuar -></Btn>
+              <Btn onClick={() => setObStep(4)} disabled={obName.trim().length < 2} fullWidth>Continuar →</Btn>
             </div>
           )}
 
@@ -611,7 +611,7 @@ export default function Home() {
               <h2 style={{ fontFamily: "'Instrument Serif',serif", fontSize: 'clamp(1.4rem,4vw,1.9rem)', lineHeight: 1.25, marginBottom: '0.75rem', letterSpacing: '-0.03em', fontWeight: 400 }}>Cuentame algo que paso hoy, {obName.split(' ')[0]}</h2>
               <p style={{ fontSize: '0.9rem', color: 'var(--muted)', marginBottom: '1.5rem', lineHeight: 1.65 }}>En ingles, como puedas. Sin presion -- no hay notas ni calificaciones.</p>
               <TA value={obText} onChange={e => setObText(e.target.value)} placeholder="Today I..." hint="Escribe lo primero que se te ocurra" rows={5} />
-              <Btn onClick={submitObText} disabled={obText.length < 10} loading={obLoading} fullWidth>Ver mi analisis -></Btn>
+              <Btn onClick={submitObText} disabled={obText.length < 10} loading={obLoading} fullWidth>Ver mi analisis →</Btn>
             </div>
           )}
 
@@ -621,7 +621,7 @@ export default function Home() {
               <ModuleTag label="LO QUE TU COACH VIO" color="var(--g)" bg="var(--g-light)" />
               <h2 style={{ fontFamily: "'Instrument Serif',serif", fontSize: 'clamp(1.4rem,4vw,1.9rem)', lineHeight: 1.25, marginBottom: '1.5rem', letterSpacing: '-0.03em', fontWeight: 400 }}>Asi empieza tu ingles real, {obName.split(' ')[0]}</h2>
               <div style={{ background: 'var(--surface)', border: `1.5px solid var(--g)`, borderRadius: 'var(--r)', padding: '1.4rem', marginBottom: '1.8rem', boxShadow: '0 0 0 4px rgba(29,107,78,0.07)', fontSize: '0.92rem', lineHeight: 1.8, color: 'var(--text)' }} dangerouslySetInnerHTML={{ __html: fmt(obLearning) }} />
-              <Btn onClick={() => { save({ onboarded: true, name: obName }); setView('home') }} fullWidth variant="primary">Entrar a FlowEnglish -></Btn>
+              <Btn onClick={() => { save({ onboarded: true, name: obName }); setView('home') }} fullWidth variant="primary">Entrar a FlowEnglish →</Btn>
             </div>
           )}
         </div>
@@ -644,7 +644,7 @@ export default function Home() {
             <span style={{ fontFamily: "'Instrument Serif',serif", fontSize: '1.1rem', letterSpacing: '-0.02em', color: 'var(--text)' }}>FlowEnglish</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <button onClick={() => setView('progress')} className="pressable" style={{ background: 'none', border: 'none', color: 'var(--muted)', fontSize: '0.82rem', fontFamily: "'DM Sans',sans-serif", fontWeight: 500 }}>Mi progreso -></button>
+            <button onClick={() => setView('progress')} className="pressable" style={{ background: 'none', border: 'none', color: 'var(--muted)', fontSize: '0.82rem', fontFamily: "'DM Sans',sans-serif", fontWeight: 500 }}>Mi progreso →</button>
           </div>
         </header>
 
@@ -669,7 +669,7 @@ export default function Home() {
               <div>
                 <button onClick={startSession} className="pressable"
                   style={{ background: '#fff', color: 'var(--g)', border: 'none', borderRadius: 12, padding: '0.75rem 1.4rem', fontSize: '0.95rem', fontWeight: 600, cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", display: 'inline-flex', alignItems: 'center', gap: 8, boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
-                  {todayDone ? 'Otra sesion ->' : 'Iniciar sesion de hoy ->'}
+                  {todayDone ? 'Otra sesion →' : 'Iniciar sesion de hoy →'}
                 </button>
               </div>
             </div>
@@ -765,10 +765,10 @@ export default function Home() {
               <TA value={dayText} onChange={e => setDayText(e.target.value)} placeholder="Today I..." hint={dayPrompt.hint} rows={5} disabled={!!dayResp} />
               {dayWarning && <WarningBox message={dayWarning} />}
               {!dayResp
-                ? <Btn onClick={submitDay} disabled={dayText.length < 15} loading={dayLoading} fullWidth>Analizar -></Btn>
+                ? <Btn onClick={submitDay} disabled={dayText.length < 15} loading={dayLoading} fullWidth>Analizar →</Btn>
                 : <>
                   <FeedbackBox label="Lo que tu coach encontro" content={dayResp} />
-                  <div style={{ marginTop: 16 }}><Btn onClick={() => setSessionStep('vocab')} fullWidth>Continuar al vocabulario -></Btn></div>
+                  <div style={{ marginTop: 16 }}><Btn onClick={() => setSessionStep('vocab')} fullWidth>Continuar al vocabulario →</Btn></div>
                 </>
               }
             </PageContent>
@@ -799,11 +799,11 @@ export default function Home() {
                   <p style={{ fontSize: '0.88rem', fontWeight: 500, color: 'var(--text)', marginBottom: 8 }}>Usa una de estas palabras en una oracion tuya:</p>
                   <TA value={vocabPractice} onChange={e => setVocabPractice(e.target.value)} placeholder="Write your sentence in English..." rows={3} />
                   {vocabWarning && <WarningBox message={vocabWarning} />}
-                  <Btn onClick={submitVocab} disabled={!vocabPractice.trim()} loading={vocabLoading} fullWidth>Enviar -></Btn>
+                  <Btn onClick={submitVocab} disabled={!vocabPractice.trim()} loading={vocabLoading} fullWidth>Enviar →</Btn>
                 </>
                 : <>
                   <FeedbackBox label="Lo que tu coach vio" content={vocabResp} />
-                  <div style={{ marginTop: 16 }}><Btn onClick={() => setSessionStep('reto')} fullWidth>Continuar al reto -></Btn></div>
+                  <div style={{ marginTop: 16 }}><Btn onClick={() => setSessionStep('reto')} fullWidth>Continuar al reto →</Btn></div>
                 </>
               }
             </PageContent>
@@ -846,12 +846,12 @@ export default function Home() {
                       <p style={{ fontSize: '0.88rem', fontWeight: 500, color: 'var(--text)', marginBottom: 8 }}>Practica en ingles:</p>
                       <TA value={retoInput} onChange={e => setRetoInput(e.target.value)} placeholder="Write in English..." rows={3} />
                       {retoWarning && <WarningBox message={retoWarning} />}
-                      <Btn onClick={submitReto} disabled={!retoInput.trim()} loading={retoLoading} fullWidth>Verificar -></Btn>
+                      <Btn onClick={submitReto} disabled={!retoInput.trim()} loading={retoLoading} fullWidth>Verificar →</Btn>
                     </>
                   ) : (
                     <>
                       <FeedbackBox label="Lo que tu coach vio" color="var(--amber)" bgColor="var(--amber-l)" content={retoResp} />
-                      <div style={{ marginTop: 16 }}><Btn onClick={() => setSessionStep('review')} fullWidth>Continuar a revision -></Btn></div>
+                      <div style={{ marginTop: 16 }}><Btn onClick={() => setSessionStep('review')} fullWidth>Continuar a revision →</Btn></div>
                     </>
                   )}
                 </>
@@ -867,7 +867,7 @@ export default function Home() {
                 ? <>
                   <h2 style={{ fontFamily: "'Instrument Serif',serif", fontSize: '1.7rem', lineHeight: 1.25, marginBottom: '0.75rem', letterSpacing: '-0.03em', fontWeight: 400 }}>Aun no hay tarjetas</h2>
                   <p style={{ fontSize: '0.9rem', color: 'var(--muted)', lineHeight: 1.65, marginBottom: '1.5rem' }}>Con cada sesion vas acumulando vocabulario. !Vuelve manana!</p>
-                  <Btn onClick={() => setSessionStep('cierre')} fullWidth>Continuar -></Btn>
+                  <Btn onClick={() => setSessionStep('cierre')} fullWidth>Continuar →</Btn>
                 </>
                 : (() => {
                   const card = reviewCards[reviewIdx]
@@ -919,10 +919,10 @@ export default function Home() {
               <h2 style={{ fontFamily: "'Instrument Serif',serif", fontSize: 'clamp(1.4rem,4vw,1.85rem)', lineHeight: 1.25, marginBottom: '0.75rem', letterSpacing: '-0.03em', fontWeight: 400 }}>?Que aprendiste hoy?</h2>
               <p style={{ fontSize: '0.88rem', color: 'var(--muted)', marginBottom: '1.5rem', lineHeight: 1.65 }}>Tu coach te dice exactamente en que avanzaste -- sin frases genericas.</p>
               {!cierreText
-                ? <Btn onClick={submitCierre} loading={cierreLoading} fullWidth>Ver mi resumen -></Btn>
+                ? <Btn onClick={submitCierre} loading={cierreLoading} fullWidth>Ver mi resumen →</Btn>
                 : <>
                   <FeedbackBox label="Tu coach dice" content={cierreText} />
-                  <div style={{ marginTop: 16 }}><Btn onClick={() => setSessionStep('done')} fullWidth>Ver sesion completa -></Btn></div>
+                  <div style={{ marginTop: 16 }}><Btn onClick={() => setSessionStep('done')} fullWidth>Ver sesion completa →</Btn></div>
                 </>
               }
             </PageContent>
@@ -961,7 +961,7 @@ export default function Home() {
                   <div style={{ fontSize: '0.88rem', lineHeight: 1.7, color: 'var(--text)' }} dangerouslySetInnerHTML={{ __html: fmt(cierreText) }} />
                 </div>
               )}
-              <Btn onClick={() => setView('home')} fullWidth>Volver al inicio -></Btn>
+              <Btn onClick={() => setView('home')} fullWidth>Volver al inicio →</Btn>
             </div>
           )}
         </div>
@@ -987,7 +987,7 @@ export default function Home() {
               <button key={topic.es} onClick={() => startChat(topic)} className="card-tap"
                 style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--r)', padding: '0.9rem 1.1rem', fontSize: '0.92rem', color: 'var(--text)', textAlign: 'left', fontFamily: "'DM Sans',sans-serif", fontWeight: 400, display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: 'var(--shadow-sm)' }}>
                 <span>{topic.es}</span>
-                <span style={{ color: 'var(--muted2)' }}>-></span>
+                <span style={{ color: 'var(--muted2)' }}>→</span>
               </button>
             ))}
           </div>
@@ -1018,14 +1018,14 @@ export default function Home() {
             </div>
           )}
           {chatEnded && chatFeedback && <FeedbackBox label="Lo que tu coach noto" content={chatFeedback} />}
-          {chatEnded && <Btn onClick={() => setView('home')} fullWidth>Volver al inicio -></Btn>}
+          {chatEnded && <Btn onClick={() => setView('home')} fullWidth>Volver al inicio →</Btn>}
         </div>
         {!chatEnded && (
           <div style={{ background: 'var(--surface)', borderTop: '1px solid var(--border)', padding: '0.8rem 1.25rem', display: 'flex', gap: 10, maxWidth: 560, width: '100%', margin: '0 auto' }}>
             <input value={chatInput} onChange={e => setChatInput(e.target.value)} placeholder="Write in English..." onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendChat()}
               style={{ flex: 1, background: 'var(--surface2)', border: '1.5px solid var(--border2)', borderRadius: 12, padding: '0.7rem 1rem', fontSize: '0.9rem', color: 'var(--text)', fontFamily: "'DM Sans',sans-serif" }} />
             <button onClick={sendChat} disabled={!chatInput.trim() || chatLoading} className="pressable"
-              style={{ background: !chatInput.trim() || chatLoading ? 'var(--muted2)' : 'var(--g)', color: '#fff', border: 'none', borderRadius: 12, padding: '0.7rem 1.1rem', cursor: !chatInput.trim() || chatLoading ? 'not-allowed' : 'pointer', fontSize: '1.1rem' }}>-></button>
+              style={{ background: !chatInput.trim() || chatLoading ? 'var(--muted2)' : 'var(--g)', color: '#fff', border: 'none', borderRadius: 12, padding: '0.7rem 1.1rem', cursor: !chatInput.trim() || chatLoading ? 'not-allowed' : 'pointer', fontSize: '1.1rem' }}>→</button>
           </div>
         )}
       </div>
@@ -1084,14 +1084,14 @@ export default function Home() {
             </div>
           )}
           {sitEnded && sitFeedback && <FeedbackBox label="Feedback del roleplay" color="var(--purple)" bgColor="var(--purple-l)" content={sitFeedback} />}
-          {sitEnded && <Btn onClick={() => setView('home')} fullWidth>Volver al inicio -></Btn>}
+          {sitEnded && <Btn onClick={() => setView('home')} fullWidth>Volver al inicio →</Btn>}
         </div>
         {!sitEnded && (
           <div style={{ background: 'var(--surface)', borderTop: '1px solid var(--border)', padding: '0.8rem 1.25rem', display: 'flex', gap: 10, maxWidth: 560, width: '100%', margin: '0 auto' }}>
             <input value={sitInput} onChange={e => setSitInput(e.target.value)} placeholder="Your response in English..." onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendSit()}
               style={{ flex: 1, background: 'var(--surface2)', border: '1.5px solid var(--border2)', borderRadius: 12, padding: '0.7rem 1rem', fontSize: '0.9rem', color: 'var(--text)', fontFamily: "'DM Sans',sans-serif" }} />
             <button onClick={sendSit} disabled={!sitInput.trim() || sitLoading} className="pressable"
-              style={{ background: !sitInput.trim() || sitLoading ? 'var(--muted2)' : 'var(--purple)', color: '#fff', border: 'none', borderRadius: 12, padding: '0.7rem 1.1rem', cursor: !sitInput.trim() || sitLoading ? 'not-allowed' : 'pointer', fontSize: '1.1rem' }}>-></button>
+              style={{ background: !sitInput.trim() || sitLoading ? 'var(--muted2)' : 'var(--purple)', color: '#fff', border: 'none', borderRadius: 12, padding: '0.7rem 1.1rem', cursor: !sitInput.trim() || sitLoading ? 'not-allowed' : 'pointer', fontSize: '1.1rem' }}>→</button>
           </div>
         )}
       </div>
@@ -1139,7 +1139,7 @@ export default function Home() {
                       <strong style={{ color: 'var(--g)' }}>💡 </strong>{q.exp}
                     </div>
                     <Btn onClick={() => { if (duelIdx < 4) { setDuelIdx(p => p + 1); setDuelSelected(null) } else { setDuelDone(true); addLearned(`Duelo rapido: ${duelScore + 1}/5 correctas`) } }} fullWidth>
-                      {duelIdx < 4 ? 'Siguiente ->' : 'Ver resultado ->'}
+                      {duelIdx < 4 ? 'Siguiente →' : 'Ver resultado →'}
                     </Btn>
                   </>
                 )}
@@ -1158,7 +1158,7 @@ export default function Home() {
                   </p>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%' }}>
-                  <Btn onClick={startDuel} fullWidth variant="outline">Jugar de nuevo -></Btn>
+                  <Btn onClick={startDuel} fullWidth variant="outline">Jugar de nuevo →</Btn>
                   <Btn onClick={() => setView('home')} fullWidth variant="ghost">Volver al inicio</Btn>
                 </div>
               </div>
@@ -1196,7 +1196,7 @@ export default function Home() {
               : frase === 'ERROR'
                 ? <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 14 }}>
                   <p style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>Hubo un error al cargar la frase.</p>
-                  <Btn onClick={loadFrase}>Intentar de nuevo -></Btn>
+                  <Btn onClick={loadFrase}>Intentar de nuevo →</Btn>
                 </div>
                 : <>
                   <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--r)', padding: '1.4rem', marginBottom: 20, boxShadow: 'var(--shadow-sm)', display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -1228,12 +1228,12 @@ export default function Home() {
                     ? <>
                       <p style={{ fontSize: '0.88rem', fontWeight: 500, color: 'var(--text)', marginBottom: 8 }}>Ahora usala en una oracion tuya:</p>
                       <TA value={fraseInput} onChange={e => setFraseInput(e.target.value)} placeholder="Write your own sentence in English..." rows={3} />
-                      <Btn onClick={submitFrase} disabled={!fraseInput.trim()} fullWidth>Enviar -></Btn>
+                      <Btn onClick={submitFrase} disabled={!fraseInput.trim()} fullWidth>Enviar →</Btn>
                     </>
                     : <>
                       <FeedbackBox label="Lo que tu coach vio" content={fraseResp} />
                       <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        <Btn onClick={loadFrase} fullWidth variant="outline">Nueva frase -></Btn>
+                        <Btn onClick={loadFrase} fullWidth variant="outline">Nueva frase →</Btn>
                         <Btn onClick={() => setView('home')} fullWidth variant="ghost">Volver al inicio</Btn>
                       </div>
                     </>
